@@ -6,18 +6,25 @@ import java.util.Scanner;
 
 public class Factor {
 	
-	/* This determines whether or not the do-while loop runs; must be static because it has to be accessed by main and parseInt() */
-	public static boolean run = true;
-	
 	public static final int MIN_VALUE = 1;
 	public static final int MAX_VALUE = 100;
 	
 	/* The value that is returned from the parseInt() method when invalid input is passed as a parameter*/
-	public static final int PARSE_FAIL_ID = -1;
+	public static final int RANGE_FAIL_ID = -1;
+	/* The value that is returned from parseInt() method when invalid (type) input is passed as a parameter */
+	public static final int TYPE_FAIL_ID = -2;
+	/* The value that is returned from parseInt() if the user types "quit" (case-insensitive) as the first or second token. */
+	public static final int QUIT_ID = -3;
+	
 	
 	public static void main (String[] args){
+		
+		System.out.println("This program evaluates the first two tokens of input only.\n");
+		
 		//Declare scanner
 		Scanner console = new Scanner(System.in);
+		
+		boolean run = true;
 		
 		//While (the user has not typed quit)
 		do {
@@ -35,7 +42,13 @@ public class Factor {
 				//Take first token and parse/see if its quit
 				int input = parseInt(inputs[0]);
 				//FACTOR only if input != -1
-				if (input != PARSE_FAIL_ID){
+				if (input == RANGE_FAIL_ID){
+					System.out.println("Error: Integer must be between " + MIN_VALUE + " and " + MAX_VALUE + ".\n");
+				} else if (input == TYPE_FAIL_ID) {
+					System.out.println("Error: Input must be of type integer. \n");
+				} else if (input == QUIT_ID){
+					run = false;
+				} else {
 					int[] factors = sortArrList(factor(input));
 					//print output
 					System.out.println("Factors of " + input + ": " + Arrays.toString(factors)+ "\n");
@@ -48,7 +61,13 @@ public class Factor {
 				//Take second token parse/see if it's quit
 				int inputB = parseInt(inputs[1]);
 				//GCD
-				if (inputA != PARSE_FAIL_ID && inputB != PARSE_FAIL_ID){
+				if (inputA == QUIT_ID || inputB == QUIT_ID){
+					run = false;
+				} else if (inputA == RANGE_FAIL_ID || inputB == RANGE_FAIL_ID){
+					System.out.println("Error: Each integer must be between " + MIN_VALUE + " and " + MAX_VALUE + ".\n");
+				} else if (inputA == TYPE_FAIL_ID || inputB == TYPE_FAIL_ID){
+					System.out.println("Error: Each input must be of type integer. \n");
+				} else {
 					int gCD = greatestDenom(inputA, inputB);
 					//print output
 					System.out.println("Greatest Common Denominator of " + inputA + " and " + inputB + ": " + gCD + "\n");
@@ -68,18 +87,16 @@ public class Factor {
 			int intInput = Integer.parseInt(input);
 			//if out of bounds
 			if (intInput < MIN_VALUE || intInput > MAX_VALUE){
-				System.out.println("Error: Integer must be between " + MIN_VALUE + " and " + MAX_VALUE + ".\n");
-				return PARSE_FAIL_ID;
+				return RANGE_FAIL_ID;
 			}
 			return intInput;
-		//if input is not of type integer
+		
+			//if input is not of type integer
 		} catch (NumberFormatException e) {
 			if (input.equalsIgnoreCase("quit")) {
-				run = false; //Stops running program
-			} else {
-				System.out.println("Error: Input must be of type integer. \n");
-			}
-			return PARSE_FAIL_ID;
+				return QUIT_ID;
+			} 
+			return TYPE_FAIL_ID;
 		}
 	}
 	

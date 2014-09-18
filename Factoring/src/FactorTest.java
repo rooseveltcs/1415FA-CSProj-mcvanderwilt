@@ -9,13 +9,19 @@ import org.junit.Test;
 
 public class FactorTest {
 	
-	/* The value that is returned from the parseInt() method when invalid input is passed as a parameter*/
-	public static final int PARSE_FAIL_ID = -1;
+	/* The value that is returned from the parseInt() method when out of range input is passed as a parameter*/
+	public static final int RANGE_FAIL_ID = -1;
+	/* The value that is returned from parseInt() method when invalid (type) input is passed as a parameter */
+	public static final int TYPE_FAIL_ID = -2;
+	/* The value that is returned from parseInt() if the user types "quit" (case-insensitive) as the first or second token. */
+	public static final int QUIT_ID = -3;
 	
 	@Test
 	/* Tests whether or not the do/while loop continues when "quit" is typed by assessing the 
-	 * value of run (a boolean instance field that is initialized as true and only modified in 
-	 * the parseInt() method when the user inputs "quit"
+	 * value of output after the input is parsed with (parseInt() method). QUIT_ID is a static instance field in 
+	 * both this class and in the original Factor class. The do while loop only performs when the variable run
+	 * is true. When QUIT_ID is returned from parseInt() run is immediately set to false and the do-while loop
+	 * quits.
 	 * Whether or not quit is the first or second token of input, it is evaluated by parseInt() and will
 	 * terminate the program. There was no good way of testing this with JUnit without completely refactoring
 	 * my code.
@@ -23,43 +29,38 @@ public class FactorTest {
 	public void testQuitInput() {
 		//Different cases:
 		//Lowercase
-		Factor.parseInt("quit");
-		boolean lowerCaseIn = Factor.run;
-		Assert.assertFalse("Program quits running when \"quit\" is typed", lowerCaseIn);
-		Factor.run = true;
+		int lowerCaseIn = Factor.parseInt("quit");
+		Assert.assertEquals("Program quits running when \"quit\" is typed", QUIT_ID, lowerCaseIn);
 		//Uppercase
-		Factor.parseInt("QUIT");
-		boolean upperCaseIn = Factor.run;
-		Assert.assertFalse("Program quits running when \"QUIT\" is typed", upperCaseIn);
-		Factor.run = true;
+		int upperCaseIn = Factor.parseInt("QUIT");
+		Assert.assertEquals("Program quits running when \"QUIT\" is typed", QUIT_ID, upperCaseIn);
 		//Mixed Case
-		Factor.parseInt("qUiT");
-		boolean mixedCaseIn = Factor.run;
-		Assert.assertFalse("Program quits running when \"quit\" is typed in a mixed case", mixedCaseIn);
+		int mixedCaseIn = Factor.parseInt("qUiT");
+		Assert.assertEquals("Program quits running when \"quit\" is typed in a mixed case", QUIT_ID, mixedCaseIn);
 	}
 	
 	@Test
 	public void testInputOutOfBounds() {
 		//Negative number
 		int negativeIn = Factor.parseInt("-1");
-		Assert.assertEquals("Negative input is unable to be parsed", PARSE_FAIL_ID, negativeIn);
+		Assert.assertEquals("Negative input is unable to be parsed", RANGE_FAIL_ID, negativeIn);
 		//0
 		int zeroIn = Factor.parseInt("0");
-		Assert.assertEquals("Input of zero is unable to be parsed", PARSE_FAIL_ID, zeroIn);
+		Assert.assertEquals("Input of zero is unable to be parsed", RANGE_FAIL_ID, zeroIn);
 		//101
 		int aboveRangeIn = Factor.parseInt("101");
-		Assert.assertEquals("Input of above 100 is unable to be parsed", PARSE_FAIL_ID, aboveRangeIn);
+		Assert.assertEquals("Input of above 100 is unable to be parsed", RANGE_FAIL_ID, aboveRangeIn);
 	}
 	
 	@Test
 	public void testInvalidInputType() {
 		//String (not quit)
 		int stringIn = Factor.parseInt("String");
-		Assert.assertEquals("String input is unable to be parsed", PARSE_FAIL_ID, stringIn);
+		Assert.assertEquals("String input is unable to be parsed", TYPE_FAIL_ID, stringIn);
 		//Double
 		int doubleIn = Factor.parseInt("50.0");
 		Assert.assertEquals("Double input (within givin range) is unable to be"
-				+ " parsed", PARSE_FAIL_ID, doubleIn);
+				+ " parsed", TYPE_FAIL_ID, doubleIn);
 	}
 	
 	@Test
