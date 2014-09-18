@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
-// Assignment One
+// Assignment One 
 
 public class Factor {
 	
