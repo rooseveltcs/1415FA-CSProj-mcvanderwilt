@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,14 +15,18 @@ public class Level {
 	private File txtFile;
 	private File imgFile;
 	
+	BufferedImage[] tiles;
+	
 	private JFrame frame;
 	private JPanel panel;
 	
-	char[][] layout;
+	int[][] layout;
 	BufferedImage tileSet;
 	
-	public static final int ARR_WIDTH = 12;//# of tiles in row
+	public static final int ARR_WIDTH = 16;//# of tiles in row
 	public static final int ARR_HEIGHT = 8;//# of tiles in column 
+	
+	//List of Active Sprites
 	
 	public Level(File f, File imgF) throws FileNotFoundException {
 		txtFile = f;
@@ -43,23 +48,46 @@ public class Level {
 		}
 		
 		int numTiles = tileSet.getWidth() / 32;//32 = number of pixels in each tile
-		BufferedImage[] tiles = new BufferedImage[numTiles];
+		tiles = new BufferedImage[numTiles];
+		for (int t = 0; t < numTiles; t++){
+			tiles[t] = tileSet.getSubimage(32 * t, 0, 32, 32);//Make 32 a static variable
+		}
 		
-		layout = new char[ARR_WIDTH][ARR_HEIGHT];
+		layout = new int[ARR_WIDTH][ARR_HEIGHT];
 		txtToArray();
+		drawLevel();
 	}
 	
-	private char[][] txtToArray() throws FileNotFoundException {
+	private int[][] txtToArray() throws FileNotFoundException {
 		Scanner scanFile = new Scanner(txtFile);
 		while (scanFile.hasNextLine()){
 			for (int row = 0; row < ARR_HEIGHT; row++){
 				for (int column = 0; column < ARR_WIDTH; column++){
-					//TODO: perhaps use string to char array (would have to get rid of spaces in txtFile)
-					layout[column][row] = scanFile.next().charAt(0);
+					layout[column][row] = scanFile.nextInt();
+					//System.out.print(layout[column][row]);
 				}
+				//System.out.println();
 			}
 		}
 		return layout;
+	}
+	
+	public void drawLevel(){
+		//Should only select area of area showing on panel
+		int xPos, yPos;
+		
+		Graphics g = panel.getGraphics();
+		
+		for (int row = 0; row < ARR_HEIGHT; row++){
+			for (int column = 0; column < ARR_WIDTH; column++){
+				
+				xPos = column * 32;
+				yPos = row * 32;
+				
+				int tileType = layout[column][row];
+				g.drawImage(tiles[tileType], xPos, yPos, panel);
+			}
+		}
 	}
 	
 }

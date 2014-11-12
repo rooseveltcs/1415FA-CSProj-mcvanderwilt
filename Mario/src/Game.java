@@ -8,5 +8,5 @@ public class Game {
 		File imageFile = new File("Tiles.bmp");//row of tiles used in each level
 		Level level = new Level(file, imageFile);
 	}
-
+	
 }
