@@ -23,12 +23,12 @@ public class Level {
 	int[][] layout;
 	BufferedImage tileSet;
 	
-	public static final int ARR_WIDTH = 16;//# of tiles in row
-	public static final int ARR_HEIGHT = 8;//# of tiles in column 
+	public static final int ARR_WIDTH = 32;//# of tiles in row
+	public static final int ARR_HEIGHT = 16;//# of tiles in column 
 	
 	//List of Active Sprites
 	
-	public Level(File f, File imgF) throws FileNotFoundException {
+	public Level(File f, File imgF) throws IOException {
 		txtFile = f;
 		imgFile = imgF;
 		
@@ -72,11 +72,14 @@ public class Level {
 		return layout;
 	}
 	
-	public void drawLevel(){
+	public void drawLevel() throws IOException{
 		//Should only select area of area showing on panel
 		int xPos, yPos;
 		
 		Graphics g = panel.getGraphics();
+		//TODO: Shouldn't draw full image just a selection based on Mario's xPos
+		BufferedImage bckgrd = ImageIO.read(new File("background.png"));//TODO: Needs to be scaled
+		g.drawImage(bckgrd, 0, 0, panel);
 		
 		for (int row = 0; row < ARR_HEIGHT; row++){
 			for (int column = 0; column < ARR_WIDTH; column++){
@@ -85,7 +88,9 @@ public class Level {
 				yPos = row * 32;
 				
 				int tileType = layout[column][row];
-				g.drawImage(tiles[tileType], xPos, yPos, panel);
+				if (tileType != 0){//TODO: Shouldn't be necessary if tiles include transparency
+					g.drawImage(tiles[tileType], xPos, yPos, panel);
+				}
 			}
 		}
 	}
