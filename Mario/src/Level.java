@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -37,6 +38,7 @@ public class Level {
 		
 		frame = new JFrame();
 		frame.add(panel);
+		//frame.setResizable(false);
 		frame.setSize(ARR_WIDTH * 32, ARR_HEIGHT * 32);
 		frame.setVisible(true);
 		
@@ -78,8 +80,9 @@ public class Level {
 		
 		Graphics g = panel.getGraphics();
 		//TODO: Shouldn't draw full image just a selection based on Mario's xPos
-		BufferedImage bckgrd = ImageIO.read(new File("background.png"));//TODO: Needs to be scaled
-		g.drawImage(bckgrd, 0, 0, panel);
+		Image bckgrd = ImageIO.read(new File("background.png"));//TODO: Needs to be scaled
+		Image scaledBkgrd = bckgrd.getScaledInstance(ARR_WIDTH * 32, ARR_HEIGHT * 32, java.awt.Image.SCALE_SMOOTH);
+		g.drawImage(scaledBkgrd, 0, 0, panel);
 		
 		for (int row = 0; row < ARR_HEIGHT; row++){
 			for (int column = 0; column < ARR_WIDTH; column++){
