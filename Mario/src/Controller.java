@@ -10,8 +10,8 @@ public class Controller {
 	private boolean rightKeyPressed;
 	private boolean upKeyPressed;
 	
-	public Controller(){
-		
+	public Controller() {
+
 	}
 	
 	private void processKeyPress (KeyEvent e){

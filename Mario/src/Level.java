@@ -27,6 +27,8 @@ public class Level {
 	public static final int ARR_WIDTH = 32;//# of tiles in row
 	public static final int ARR_HEIGHT = 16;//# of tiles in column 
 	
+	//TODO: place this back as an instance field << private Graphics g;
+	
 	//List of Active Sprites
 	
 	public Level(File f, File imgF) throws IOException {
@@ -39,7 +41,7 @@ public class Level {
 		frame = new JFrame();
 		frame.add(panel);
 		frame.setResizable(false);
-		frame.setSize(ARR_WIDTH * 32, ARR_HEIGHT * 32);
+		frame.setSize(ARR_WIDTH * 32, ARR_HEIGHT * 32);//ARRAY_WIDTH will not be the same as the frame width
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		
@@ -73,12 +75,19 @@ public class Level {
 		return layout;
 	}
 	
+	
+	//UPDATE LEVEL: shift background according to Mario's xPos/direction
+	//UPDATE SPRITES: shift position according to Mario's movement; test for collision detections
+	
+	
+	//TODO: Doesn't display image background consistently
 	public void drawLevel() throws IOException{
 		//Should only select area of area showing on panel
 		//Get Mario's position on screen
 		int xPos, yPos;
 		
-		Graphics g = panel.getGraphics();
+		Graphics g = panel.getGraphics();//TODO: Make an instance field
+		
 		//TODO: Shouldn't draw full image just a selection based on Mario's xPos
 		Image bckgrd = ImageIO.read(new File("background.png"));
 		Image scaledBkgrd = bckgrd.getScaledInstance(ARR_WIDTH * 32, ARR_HEIGHT * 32, java.awt.Image.SCALE_SMOOTH);
@@ -94,6 +103,15 @@ public class Level {
 				g.drawImage(tiles[tileType], xPos, yPos, panel);
 			}
 		}
+		
+		drawSprites(g);//TODO: Don't really want this in here.
 	}
 	
+	//Should go through array of active sprites in the level (initialized in constructor) and draw each of them
+	public void drawSprites(Graphics g) throws IOException{
+		//Go through array
+		//Draw each sprite
+		Sprite Mario = new Sprite();
+		g.drawImage(Mario.initialState, Mario.xPos, Mario.yPos, panel);//Will be handled by a for:each loop
+	}
 }
