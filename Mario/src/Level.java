@@ -26,11 +26,11 @@ public class Level {
 	int[][] layout;
 	BufferedImage tileSet;
 	
-	public static final int ARR_WIDTH = 32;//# of tiles in row
-	public static final int ARR_HEIGHT = 16;//# of tiles in column 
+	private static final int ARR_WIDTH = 32;//# of tiles in row
+	private static final int ARR_HEIGHT = 16;//# of tiles in column 
 	
 	private Graphics g;
-	//TODO: place this back as an instance field << private Graphics g;
+
 	private int xPos;//The TOP-LEFT CORNER of the Array and of the background image; changes with player key input
 	
 	//List of Active Sprites
@@ -43,6 +43,7 @@ public class Level {
 		
 		panel = new JPanel();
 		panel.setBackground(new Color(102, 178, 255));
+		
 		
 		g = panel.getGraphics();//TODO: Get rid of getGraphics and use paintComponent
 		
@@ -88,6 +89,7 @@ public class Level {
 				}
 			}
 		}
+		scanFile.close();
 		return layout;
 	}
 	
@@ -97,7 +99,9 @@ public class Level {
 		
 	}
 	//UPDATE SPRITES: shift position according to Mario's movement; test for collision detections
+	public void updateSprites(){
 	
+	}
 	
 	//TODO: Doesn't display image background consistently
 	public void drawLevel() throws IOException{
@@ -105,7 +109,7 @@ public class Level {
 		//Get Mario's position on screen
 		int arrayXPos, arrayYPos;
 		
-		//Graphics g = panel.getGraphics();//TODO: Make an instance field
+		Graphics g = panel.getGraphics();//TODO: Make an instance field
 		
 		//TODO: Shouldn't draw full image just a selection based on Mario's xPos
 		Image bckgrd = ImageIO.read(new File("background.png"));
@@ -113,7 +117,8 @@ public class Level {
 		g.drawImage(scaledBkgrd, 0, 0, panel);
 		
 		for (int row = 0; row < ARR_HEIGHT; row++){//Stays unchanging
-			for (int column = xPos; column < ARR_WIDTH; column++){//TODO: Should alter starting point depending on Mario's position
+			for (int column = xPos; column < ARR_WIDTH; column++){
+				//TODO: Should alter starting point depending on Mario's position
 				
 				arrayXPos = column * 32;
 				arrayYPos = row * 32;
@@ -134,42 +139,47 @@ public class Level {
 		g.drawImage(mario.initialState, mario.xPos, mario.yPos, panel);//Will be handled by a for:each loop
 	}
 	
-	public JPanel getPanel() {
-		return panel;
-	}
-	
 	private class Controller implements KeyListener {
-//TODO: Left Arrow Key Code doesn't match up with VK_LEFT constant 
+		
+		private boolean leftKeyPressed;
+		private boolean rightKeyPressed;
+		private boolean upKeyPressed;
+		
+		
 		@Override
 		public void keyPressed(KeyEvent ev) {
-			// TODO Auto-generated method stub
-			System.out.println("KEY pressed");
-			
-			//will be made conditional to Left-Key pressed
-			mario.xPos = mario.xPos + 10;
-			/*try {
-				drawLevel();
-			} catch (IOException e) {
-			}*/
 			
 			int keyCode = ev.getKeyCode();
+			
 			if (keyCode == KeyEvent.VK_LEFT){
-				System.out.println("Left pressed");
+				leftKeyPressed = true;
+				xPos+= 1;
+			} else if (keyCode == KeyEvent.VK_RIGHT){
+				rightKeyPressed = true;
+			} else if (keyCode == KeyEvent.VK_UP){
+				upKeyPressed = true;
+			}
+			try {
+				updateLevel();
+				updateSprites();
+				drawLevel();
+				//drawSprites();//currently needs graphics passed as @param.
+			} catch (IOException e) {
+				System.out.println("Error: drawing level");
 			}
 		}
 
 		@Override
 		public void keyReleased(KeyEvent ev) {
-			// TODO Auto-generated method stub
-			System.out.println("KEY released");
+			
 			int keyCode = ev.getKeyCode();
 			
-			System.out.println(keyCode);
-			System.out.println(KeyEvent.VK_RIGHT);
-
-			
 			if (keyCode == KeyEvent.VK_LEFT){
-				System.out.println("Left released");
+				leftKeyPressed = false;
+			} else if (keyCode == KeyEvent.VK_RIGHT){
+				rightKeyPressed = false;
+			} else if (keyCode == KeyEvent.VK_UP){
+				upKeyPressed = false;
 			}
 		}
 
@@ -179,3 +189,18 @@ public class Level {
 		
 	}
 }
+//need to implement a game loop that repaints the level every _ seconds 
+	//figure out placement
+	//figure out contents (method calls)
+/*
+double lastTime = getCurrentTime();
+while (true)
+{
+  double current = getCurrentTime();
+  double elapsed = current - lastTime;
+  processInput();
+  update(elapsed);
+  render();
+  lastTime = current;
+}
+*/
