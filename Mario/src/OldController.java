@@ -1,4 +1,4 @@
-import java.awt.Color;
+/*import java.awt.Color;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -60,7 +60,7 @@ public class OldController implements KeyListener {
 	@Override
 	public void keyTyped(KeyEvent e) {
 	}
-}
+}*/
 
 
 //process key press

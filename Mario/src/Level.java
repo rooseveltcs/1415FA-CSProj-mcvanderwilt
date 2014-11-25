@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
@@ -26,6 +27,8 @@ public class Level {
 	int[][] layout;
 	BufferedImage tileSet;
 	
+	private static final int PXLS_PER_TILE = 32;
+	
 	private static final int ARR_WIDTH = 32;//# of tiles in row
 	private static final int ARR_HEIGHT = 16;//# of tiles in column 
 	
@@ -34,19 +37,18 @@ public class Level {
 	private int xPos;//The TOP-LEFT CORNER of the Array and of the background image; changes with player key input
 	
 	//List of Active Sprites
+	//Based on text file with all sprite names, types, positions 
+	private ArrayList<Sprite> spriteList;
 	private Sprite mario;
 	
 	public Level(File f, File imgF) throws IOException {
 		txtFile = f;
 		imgFile = imgF;
 		
-		
-		panel = new JPanel();
+		panel = new JPanel();//TODO: Make of type ScrollingPanel
 		panel.setBackground(new Color(102, 178, 255));
 		
-		
 		g = panel.getGraphics();//TODO: Get rid of getGraphics and use paintComponent
-		
 		
 		panel.setFocusable(true);
 		panel.requestFocus();
@@ -66,10 +68,10 @@ public class Level {
 			System.out.println("Invalid image file");
 		}
 		
-		int numTiles = tileSet.getWidth() / 32;//32 = number of pixels in each tile
+		int numTiles = tileSet.getWidth() / PXLS_PER_TILE;
 		tiles = new BufferedImage[numTiles];
 		for (int t = 0; t < numTiles; t++){
-			tiles[t] = tileSet.getSubimage(32 * t, 0, 32, 32);//Make 32 a static variable
+			tiles[t] = tileSet.getSubimage(PXLS_PER_TILE * t, 0, PXLS_PER_TILE, PXLS_PER_TILE);
 		}
 		
 		xPos = 0;
@@ -93,7 +95,6 @@ public class Level {
 		return layout;
 	}
 	
-	
 	//UPDATE LEVEL: shift background according to Mario's xPos/direction
 	public void updateLevel() {
 		
@@ -105,36 +106,37 @@ public class Level {
 	
 	//TODO: Doesn't display image background consistently
 	public void drawLevel() throws IOException{
-		//Should only select area of area showing on panel
 		//Get Mario's position on screen
-		int arrayXPos, arrayYPos;
+		int panelXPos, panelYPos;
 		
 		Graphics g = panel.getGraphics();//TODO: Make an instance field
 		
 		//TODO: Shouldn't draw full image just a selection based on Mario's xPos
-		Image bckgrd = ImageIO.read(new File("background.png"));
+		Image bckgrd = ImageIO.read(new File("background.png"));//TODO: Alter image to extend beyond panel width height
 		Image scaledBkgrd = bckgrd.getScaledInstance(ARR_WIDTH * 32, (ARR_HEIGHT - 1) * 32, java.awt.Image.SCALE_SMOOTH);
+		BufferedImage bImg = (BufferedImage) scaledBkgrd;//TODO: use this one to make appear consistently
 		g.drawImage(scaledBkgrd, 0, 0, panel);
 		
+		int delta = 10;//for now//TODO: Test
+		
 		for (int row = 0; row < ARR_HEIGHT; row++){//Stays unchanging
-			for (int column = xPos; column < ARR_WIDTH; column++){
-				//TODO: Should alter starting point depending on Mario's position
+			for (int column = 0; column < ARR_WIDTH; column++){
 				
-				arrayXPos = column * 32;
-				arrayYPos = row * 32;
+				//Assumes that one 32pixel panel is equivalent to mario's movement
+				panelXPos = column * 32 - delta;
+				panelYPos = row * 32;
 				
 				int tileType = layout[column][row];
-				g.drawImage(tiles[tileType], arrayXPos, arrayYPos, panel);
+				g.drawImage(tiles[tileType], panelXPos, panelYPos, panel);
 			}
 		}
-		
 		drawSprites(g);//TODO: Don't really want this in here.
 	}
 	
 	//Should go through array of active sprites in the level (initialized in constructor) and draw each of them
 	public void drawSprites(Graphics g) throws IOException{
-		//Go through array
-		//Draw each sprite
+		//for each sprite in array
+			//Draw each sprite
 		mario = new Sprite();
 		g.drawImage(mario.initialState, mario.xPos, mario.yPos, panel);//Will be handled by a for:each loop
 	}
@@ -144,7 +146,6 @@ public class Level {
 		private boolean leftKeyPressed;
 		private boolean rightKeyPressed;
 		private boolean upKeyPressed;
-		
 		
 		@Override
 		public void keyPressed(KeyEvent ev) {
@@ -161,9 +162,8 @@ public class Level {
 			}
 			try {
 				updateLevel();
-				updateSprites();
+				updateSprites();//goes in and adds delta to sprite's position; tests for collision; changes mario's state
 				drawLevel();
-				//drawSprites();//currently needs graphics passed as @param.
 			} catch (IOException e) {
 				System.out.println("Error: drawing level");
 			}
@@ -186,7 +186,24 @@ public class Level {
 		@Override
 		public void keyTyped(KeyEvent ev) {
 		}
+	}
+	
+	private class ScrollingPanel extends JPanel{
 		
+		private int topLeftXPos;
+		
+		private ScrollingPanel(){
+			topLeftXPos = 0;
+			panel.setBackground(new Color(102, 178, 255));
+		}
+		@Override
+		public void repaint(){
+			//paint according to xPos
+		}
+		
+		public void setXPos(int delta){
+			topLeftXPos += delta;
+		}
 	}
 }
 //need to implement a game loop that repaints the level every _ seconds 
