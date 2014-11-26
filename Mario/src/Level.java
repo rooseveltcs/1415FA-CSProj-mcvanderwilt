@@ -22,7 +22,7 @@ public class Level {
 	BufferedImage[] tiles;
 	
 	private JFrame frame;
-	private JPanel panel;
+	private ScrollingPanel panel;
 	
 	int[][] layout;
 	BufferedImage tileSet;
@@ -45,7 +45,7 @@ public class Level {
 		txtFile = f;
 		imgFile = imgF;
 		
-		panel = new JPanel();//TODO: Make of type ScrollingPanel
+		panel = new ScrollingPanel();//TODO: Make of type ScrollingPanel
 		panel.setBackground(new Color(102, 178, 255));
 		
 		g = panel.getGraphics();//TODO: Get rid of getGraphics and use paintComponent
@@ -112,10 +112,9 @@ public class Level {
 		Graphics g = panel.getGraphics();//TODO: Make an instance field
 		
 		//TODO: Shouldn't draw full image just a selection based on Mario's xPos
-		Image bckgrd = ImageIO.read(new File("background.png"));//TODO: Alter image to extend beyond panel width height
-		Image scaledBkgrd = bckgrd.getScaledInstance(ARR_WIDTH * 32, (ARR_HEIGHT - 1) * 32, java.awt.Image.SCALE_SMOOTH);
-		BufferedImage bImg = (BufferedImage) scaledBkgrd;//TODO: use this one to make appear consistently
-		g.drawImage(scaledBkgrd, 0, 0, panel);
+		BufferedImage bckgrd = ImageIO.read(new File("background.png"));//TODO: Alter image to extend beyond panel width height
+		//Image scaledBkgrd = bckgrd.getScaledInstance(ARR_WIDTH * 32, (ARR_HEIGHT - 1) * 32, java.awt.Image.SCALE_SMOOTH);
+		g.drawImage(bckgrd, 0, 0, PXLS_PER_TILE * ARR_WIDTH, (ARR_HEIGHT - 1) * PXLS_PER_TILE, panel);
 		
 		int delta = 10;//for now//TODO: Test
 		
@@ -191,14 +190,32 @@ public class Level {
 	private class ScrollingPanel extends JPanel{
 		
 		private int topLeftXPos;
+		private Graphics g;
+		
+		private BufferedImage bkgrdImg;
 		
 		private ScrollingPanel(){
 			topLeftXPos = 0;
-			panel.setBackground(new Color(102, 178, 255));
+			setBackground(new Color(102, 178, 255));
+			Graphics g = getGraphics();
+			
+			try {
+				bkgrdImg = ImageIO.read(new File ("background.png"));
+			} catch (IOException e) {
+			}
+			
 		}
+		
+		public void paintComponent(){
+			
+		}
+		
+		
 		@Override
 		public void repaint(){
 			//paint according to xPos
+			g.drawImage(bkgrdImg, 0, 0, PXLS_PER_TILE * ARR_WIDTH, (ARR_HEIGHT - 1) * PXLS_PER_TILE, panel);
+			
 		}
 		
 		public void setXPos(int delta){
