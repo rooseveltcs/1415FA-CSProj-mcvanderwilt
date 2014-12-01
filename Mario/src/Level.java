@@ -162,7 +162,6 @@ public class Level {
 			} else if (keyCode == KeyEvent.VK_UP){
 				upKeyPressed = true;
 				System.out.println(panel.topLeftXPos);
-				System.out.println(panel.topLeftXPos);
 			}
 		/*	try {
 				//updateLevel();
@@ -214,8 +213,11 @@ public class Level {
 		@Override
 		public void paintComponent(Graphics g){
 			super.paintComponent(g);
-
-			int breakPt = panel.getWidth() - topLeftXPos;//Point where one image stops and the other begins (tail and head meet)
+			
+			int pWidth = panel.getWidth();//Currently same as image width
+			int pHeight = panel.getHeight();
+			
+			int breakPt = Math.abs(pWidth - topLeftXPos);//Point where one image stops and the other begins (tail and head meet)
 			//If mario is moving right the breakpoint should get smaller
 			
 			//Scale image
@@ -229,18 +231,36 @@ public class Level {
 			
 			//TODO: CLEAN UP
 			
+			/*MIGHT NOT WORK
+			if (breakPt == 0){
+				g.drawImage(resizedImage, 0, 0, pWidth, pHeight, 0, 0, imgWidth, imgHeight, panel);
+			} else if (breakPt > 0 && breakPt < pWidth){
+				g.drawImage(resizedImage, breakPt, 0, pWidth, pHeight, 0, 0, imgWidth - breakPt, imgHeight, panel);
+				g.drawImage(resizedImage, 0, 0, breakPt, pHeight, imgWidth - breakPt, 0, imgWidth, imgHeight, panel);
+			} else if (breakPt >= pWidth){
+				
+			}*/
+			
+			g.drawImage(resizedImage, (-1 * breakPt), 0, panel);
+			g.drawImage(resizedImage, breakPt, 0, panel);
+			
+			
 			//TODO: Scrolling isn't continuous
 			//image, panel beginning x pos, panel begin. y pos, panel end x pos, panel end y pos, img begin x pos, img begin y pos, img end x pos, img end y pos, panel
-			g.drawImage(resizedImage, 0, 0, panel.getWidth() - breakPt, panel.getHeight(), breakPt, 0, imgWidth, imgHeight, panel);
-			g.drawImage(resizedImage, panel.getWidth() - breakPt, 0, panel.getWidth(), panel.getHeight(), 0, 0, breakPt, imgHeight, panel);
+			//if mario heading left && 
+			
+			
+			//WORKS 
+			//g.drawImage(resizedImage, 0, 0, panel.getWidth() - breakPt, panel.getHeight(), breakPt, 0, imgWidth, imgHeight, panel);
+			//g.drawImage(resizedImage, panel.getWidth() - breakPt, 0, panel.getWidth(), panel.getHeight(), 0, 0, breakPt, imgHeight, panel);
 			
 			//g.drawImage(resizedImage, 0, 0, breakXPoint, panel.getHeight(), topLeftXPos, 0, bkgrdImg.getWidth(), bkgrdImg.getHeight(), panel);
 			//g.drawImage(resizedImage, breakXPoint, 0, panel.getWidth(), panel.getHeight(), 0, 0, bkgrdImg.getWidth() - breakXPoint, bkgrdImg.getHeight(), panel);
 			
 		}
 		
-		public void setXPos(int delta){
-			topLeftXPos += delta;
+		public void setXPos(int del){
+			topLeftXPos += del;
 			repaint();
 		}
 	}
