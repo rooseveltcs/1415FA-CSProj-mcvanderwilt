@@ -35,7 +35,7 @@ public class Level {
 	
 	private Graphics g;
 
-	private int xPos;//The TOP-LEFT CORNER of the Array and of the background image; changes with player key input
+	private int delta;//The TOP-LEFT CORNER of the Array and of the background image; changes with player key input
 	
 	//List of Active Sprites
 	//Based on text file with all sprite names, types, positions 
@@ -46,8 +46,7 @@ public class Level {
 		txtFile = f;
 		imgFile = imgF;
 		
-		panel = new ScrollingPanel();//TODO: Make of type ScrollingPanel
-		panel.setBackground(new Color(102, 178, 255));
+		panel = new ScrollingPanel();
 		
 		g = panel.getGraphics();//TODO: Get rid of getGraphics and use paintComponent
 		
@@ -75,7 +74,7 @@ public class Level {
 			tiles[t] = tileSet.getSubimage(PXLS_PER_TILE * t, 0, PXLS_PER_TILE, PXLS_PER_TILE);
 		}
 		
-		xPos = 0;
+		delta = 0;
 		
 		layout = new int[ARR_WIDTH][ARR_HEIGHT];
 		txtToArray();
@@ -110,7 +109,6 @@ public class Level {
 		//Get Mario's position on screen
 		int panelXPos, panelYPos;
 		
-		Graphics g = panel.getGraphics();//TODO: Make an instance field
 		/*
 		//TODO: Shouldn't draw full image just a selection based on Mario's xPos
 		BufferedImage bckgrd = ImageIO.read(new File("background.png"));//TODO: Alter image to extend beyond panel width height
@@ -144,6 +142,9 @@ public class Level {
 	
 	private class Controller implements KeyListener {
 		
+		private static final int MOVE_STEP = 10;//movement per step (push of arrow)
+		
+		
 		private boolean leftKeyPressed;
 		private boolean rightKeyPressed;
 		private boolean upKeyPressed;
@@ -155,13 +156,14 @@ public class Level {
 			
 			if (keyCode == KeyEvent.VK_LEFT){
 				leftKeyPressed = true;
-				panel.setXPos(-10);
+				delta -= MOVE_STEP;
+				panel.repaint();
 			} else if (keyCode == KeyEvent.VK_RIGHT){
 				rightKeyPressed = true;
-				panel.setXPos(10);
+				delta += MOVE_STEP;
+				panel.repaint();
 			} else if (keyCode == KeyEvent.VK_UP){
 				upKeyPressed = true;
-				System.out.println(panel.topLeftXPos);
 			}
 		/*	try {
 				//updateLevel();
@@ -193,21 +195,18 @@ public class Level {
 	
 	private class ScrollingPanel extends JPanel{
 		
-		private int topLeftXPos;
 		private Graphics g;
 		
 		private BufferedImage bkgrdImg;
 		
 		private ScrollingPanel(){
-			topLeftXPos = 0;
-			setBackground(new Color(102, 178, 255));
 			Graphics g = getGraphics();
 			
 			try {
 				bkgrdImg = ImageIO.read(new File ("background.png"));
 			} catch (IOException e) {
+				System.out.println("Error translating background image from image file \"background.png\"");
 			}
-			
 		}
 		
 		@Override
@@ -217,51 +216,20 @@ public class Level {
 			int pWidth = panel.getWidth();//Currently same as image width
 			int pHeight = panel.getHeight();
 			
-			int breakPt = Math.abs(pWidth - topLeftXPos);//Point where one image stops and the other begins (tail and head meet)
-			//If mario is moving right the breakpoint should get smaller
-			
-			//Scale image
+			int breakPt = pWidth - (delta % pWidth);
+
 			//TODO: Resolution's not great
-			int imgWidth = panel.getWidth();//Desired width/height of new scaled image
-			int imgHeight = panel.getHeight();
+			int imgWidth = pWidth;//Desired width/height of new scaled image
+			int imgHeight = pHeight;
 			BufferedImage resizedImage = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_ARGB);
 			Graphics2D graphics = resizedImage.createGraphics();
 			graphics.drawImage(bkgrdImg, 0, 0, imgWidth, imgHeight, null);
 			graphics.dispose();
 			
-			//TODO: CLEAN UP
-			
-			/*MIGHT NOT WORK
-			if (breakPt == 0){
-				g.drawImage(resizedImage, 0, 0, pWidth, pHeight, 0, 0, imgWidth, imgHeight, panel);
-			} else if (breakPt > 0 && breakPt < pWidth){
-				g.drawImage(resizedImage, breakPt, 0, pWidth, pHeight, 0, 0, imgWidth - breakPt, imgHeight, panel);
-				g.drawImage(resizedImage, 0, 0, breakPt, pHeight, imgWidth - breakPt, 0, imgWidth, imgHeight, panel);
-			} else if (breakPt >= pWidth){
-				
-			}*/
-			
-			g.drawImage(resizedImage, (-1 * breakPt), 0, panel);
-			g.drawImage(resizedImage, breakPt, 0, panel);
-			
-			
-			//TODO: Scrolling isn't continuous
-			//image, panel beginning x pos, panel begin. y pos, panel end x pos, panel end y pos, img begin x pos, img begin y pos, img end x pos, img end y pos, panel
-			//if mario heading left && 
-			
-			
-			//WORKS 
-			//g.drawImage(resizedImage, 0, 0, panel.getWidth() - breakPt, panel.getHeight(), breakPt, 0, imgWidth, imgHeight, panel);
-			//g.drawImage(resizedImage, panel.getWidth() - breakPt, 0, panel.getWidth(), panel.getHeight(), 0, 0, breakPt, imgHeight, panel);
-			
-			//g.drawImage(resizedImage, 0, 0, breakXPoint, panel.getHeight(), topLeftXPos, 0, bkgrdImg.getWidth(), bkgrdImg.getHeight(), panel);
-			//g.drawImage(resizedImage, breakXPoint, 0, panel.getWidth(), panel.getHeight(), 0, 0, bkgrdImg.getWidth() - breakXPoint, bkgrdImg.getHeight(), panel);
-			
-		}
+			//TODO: Scrolls continuously unless DELTA = negative (ie Mario starts by going left)
 		
-		public void setXPos(int del){
-			topLeftXPos += del;
-			repaint();
+			g.drawImage(resizedImage, breakPt - pWidth, 0, breakPt, pHeight, 0, 0, imgWidth, imgHeight, panel);
+			g.drawImage(resizedImage, breakPt, 0, breakPt + pWidth, pHeight, 0, 0, imgWidth, imgHeight, panel);
 		}
 	}
 }
