@@ -30,7 +30,7 @@ public class Level {
 	
 	private static final int PXLS_PER_TILE = 32;
 	
-	private static final int ARR_WIDTH = 32;//# of tiles in row
+	private static final int ARR_WIDTH = 64;//# of tiles in row
 	private static final int ARR_HEIGHT = 16;//# of tiles in column 
 	
 	private Graphics g;
@@ -57,7 +57,7 @@ public class Level {
 		frame = new JFrame();
 		frame.add(panel);
 		frame.setResizable(false);
-		frame.setSize(ARR_WIDTH * 32, ARR_HEIGHT * 32);//ARRAY_WIDTH will not be the same as the frame width
+		frame.setSize(1024, ARR_HEIGHT * 32);//ARRAY_WIDTH will not be the same as the frame width
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		
@@ -79,7 +79,6 @@ public class Level {
 		layout = new int[ARR_WIDTH][ARR_HEIGHT];
 		txtToArray();
 		
-		drawLevel();
 	}
 	
 	private int[][] txtToArray() throws FileNotFoundException {
@@ -96,7 +95,7 @@ public class Level {
 	}
 	
 	//UPDATE LEVEL: shift background according to Mario's xPos/direction
-	public void updateLevel() {
+	public void update() {
 		
 	}
 	//UPDATE SPRITES: shift position according to Mario's movement; test for collision detections
@@ -104,32 +103,7 @@ public class Level {
 	
 	}
 	
-	//TODO: Doesn't display image background consistently
-	public void drawLevel() throws IOException{
-		//Get Mario's position on screen
-		int panelXPos, panelYPos;
-		
-		/*
-		//TODO: Shouldn't draw full image just a selection based on Mario's xPos
-		BufferedImage bckgrd = ImageIO.read(new File("background.png"));//TODO: Alter image to extend beyond panel width height
-		//Image scaledBkgrd = bckgrd.getScaledInstance(ARR_WIDTH * 32, (ARR_HEIGHT - 1) * 32, java.awt.Image.SCALE_SMOOTH);
-		g.drawImage(bckgrd, 0, 0, PXLS_PER_TILE * ARR_WIDTH, (ARR_HEIGHT - 1) * PXLS_PER_TILE, panel);
-		*/
-		int delta = 0;//for now//TODO: Test
-		
-		for (int row = 0; row < ARR_HEIGHT; row++){//Stays unchanging
-			for (int column = 0; column < ARR_WIDTH; column++){
-				
-				//Assumes that one 32pixel panel is equivalent to mario's movement
-				panelXPos = column * 32 - delta;
-				panelYPos = row * 32;
-				
-				int tileType = layout[column][row];
-				g.drawImage(tiles[tileType], panelXPos, panelYPos, panel);
-			}
-		}
-		drawSprites(g);//TODO: Don't really want this in here. 
-		//panel.paintComponent(g);
+	public void render() throws IOException{
 	}
 	
 	//Should go through array of active sprites in the level (initialized in constructor) and draw each of them
@@ -185,6 +159,7 @@ public class Level {
 				rightKeyPressed = false;
 			} else if (keyCode == KeyEvent.VK_UP){
 				upKeyPressed = false;
+				System.out.println(delta);
 			}
 		}
 
@@ -209,14 +184,19 @@ public class Level {
 			}
 		}
 		
+		//SCROLLING IS NOW FULLY FUNCTIONAL (though boundaries haven't been implemented)
 		@Override
 		public void paintComponent(Graphics g){
 			super.paintComponent(g);
 			
+			//BACKGROUND
 			int pWidth = panel.getWidth();//Currently same as image width
 			int pHeight = panel.getHeight();
 			
 			int breakPt = pWidth - (delta % pWidth);
+			if (delta < 0){
+				breakPt = Math.abs(delta % pWidth);
+			}
 
 			//TODO: Resolution's not great
 			int imgWidth = pWidth;//Desired width/height of new scaled image
@@ -226,10 +206,29 @@ public class Level {
 			graphics.drawImage(bkgrdImg, 0, 0, imgWidth, imgHeight, null);
 			graphics.dispose();
 			
-			//TODO: Scrolls continuously unless DELTA = negative (ie Mario starts by going left)
-		
 			g.drawImage(resizedImage, breakPt - pWidth, 0, breakPt, pHeight, 0, 0, imgWidth, imgHeight, panel);
 			g.drawImage(resizedImage, breakPt, 0, breakPt + pWidth, pHeight, 0, 0, imgWidth, imgHeight, panel);
+			
+			//BRICK LAYOUT
+			int drawXPos, drawYPos;
+			for (int row = 0; row < ARR_HEIGHT; row++){//Stays unchanging
+				for (int column = 0; column < ARR_WIDTH; column++){
+					
+					//Assumes that one 32pixel panel is equivalent to mario's movement
+					drawXPos = column * 32 - delta;
+					drawYPos = row * 32;
+					
+					int tileType = layout[column][row];
+					if (drawXPos < pWidth + PXLS_PER_TILE && drawXPos >= -PXLS_PER_TILE){//Prevents off-panel stuff from being drawn 
+						g.drawImage(tiles[tileType], drawXPos, drawYPos, panel);
+					}
+				}
+			}
+			try {
+				drawSprites(g);
+			} catch (IOException e) {
+				System.out.println("Error drawing sprites (IO Exception).");
+			}
 		}
 	}
 }
