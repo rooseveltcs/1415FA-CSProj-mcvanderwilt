@@ -39,4 +39,17 @@ public class Sprite {
 		return new Rectangle (xPos, yPos, width, height);
 	}
 	
+	public void update(int delta, int vertDelta){
+		xPos += delta;
+		yPos += vertDelta;
+	}
+	
 }
+
+/* SPRITE ABSTRACT CLASS
+ *  sprite has a position
+ *  a state (way facing, ifJumping, crouched, etc)
+ *  a way that interacts with others (depends on angle of collision too)
+ *  name/description (of type enemy)
+ * 
+ */

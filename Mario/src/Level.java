@@ -15,6 +15,8 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+//TODO: implement offset and boundaries (so scrolling stops when level txt file ends).
+//TODO: Create game loop
 public class Level {
 	
 	private File txtFile;
@@ -33,8 +35,6 @@ public class Level {
 	private static final int ARR_WIDTH = 64;//# of tiles in row
 	private static final int ARR_HEIGHT = 16;//# of tiles in column 
 	
-	private Graphics g;
-
 	private int delta;//The TOP-LEFT CORNER of the Array and of the background image; changes with player key input
 	
 	//List of Active Sprites
@@ -47,8 +47,6 @@ public class Level {
 		imgFile = imgF;
 		
 		panel = new ScrollingPanel();
-		
-		g = panel.getGraphics();//TODO: Get rid of getGraphics and use paintComponent
 		
 		panel.setFocusable(true);
 		panel.requestFocus();
@@ -103,7 +101,7 @@ public class Level {
 	
 	}
 	
-	public void render() throws IOException{
+	public void drawLevel() throws IOException{
 	}
 	
 	//Should go through array of active sprites in the level (initialized in constructor) and draw each of them
@@ -117,7 +115,6 @@ public class Level {
 	private class Controller implements KeyListener {
 		
 		private static final int MOVE_STEP = 10;//movement per step (push of arrow)
-		
 		
 		private boolean leftKeyPressed;
 		private boolean rightKeyPressed;
@@ -215,8 +212,8 @@ public class Level {
 				for (int column = 0; column < ARR_WIDTH; column++){
 					
 					//Assumes that one 32pixel panel is equivalent to mario's movement
-					drawXPos = column * 32 - delta;
-					drawYPos = row * 32;
+					drawXPos = column * PXLS_PER_TILE - delta;
+					drawYPos = row * PXLS_PER_TILE;
 					
 					int tileType = layout[column][row];
 					if (drawXPos < pWidth + PXLS_PER_TILE && drawXPos >= -PXLS_PER_TILE){//Prevents off-panel stuff from being drawn 
@@ -232,7 +229,7 @@ public class Level {
 		}
 	}
 }
-//need to implement a game loop that repaints the level every _ seconds 
+//need to implement a game loop that repaints the level every _ milliseconds 
 	//figure out placement
 	//figure out contents (method calls)
 /*
