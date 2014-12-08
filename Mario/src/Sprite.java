@@ -1,3 +1,4 @@
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -16,7 +17,8 @@ public class Sprite {
 	
 	//array of States (images to loop through while in state, name, and movement type)
 	
-	public BufferedImage initialState;//For testing purposes
+	public BufferedImage spriteImg;//created from initial image file (not resized)
+	public BufferedImage defaultImg;//For testing purposes
 	
 	//THIS IS FOR TESTING PURPOSES ONLY. WILL BE AN ABSTRACT CLASS WITH SPRITES AS SUBCLASSES
 	public Sprite() throws IOException {
@@ -27,12 +29,9 @@ public class Sprite {
 		width = 32;
 		height = 32;
 		
-		initialState = ImageIO.read(new File("mario_Left1.png"));
-		
-		//TODO: Doesn't work; necessary if Mario is to change size during the game
-		/*Image img = ImageIO.read(new File("mario_Left1.png"));
-		img = img.getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH);
-		BufferedImage initialState = (BufferedImage) img;*/
+		spriteImg = ImageIO.read(new File("mario_Left1.png"));
+		defaultImg = sizeImage(width, height);
+
 	}
 	
 	public Rectangle getBoundingBox(){
@@ -42,6 +41,14 @@ public class Sprite {
 	public void update(int delta, int vertDelta){
 		xPos += delta;
 		yPos += vertDelta;
+	}
+	
+	public BufferedImage sizeImage(int width, int height){
+		BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		Graphics2D graphics = resizedImage.createGraphics();
+		graphics.drawImage(spriteImg, 0, 0, width, height, null);
+		graphics.dispose();
+		return resizedImage;
 	}
 	
 }

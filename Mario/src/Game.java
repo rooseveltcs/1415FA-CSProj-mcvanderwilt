@@ -6,51 +6,39 @@ public class Game {
 
 	private static final int FRAMES_PER_SECOND = 25;
 	private static final int SKIP_TICKS = 1000 / FRAMES_PER_SECOND;
+	private static final int MAX_FRAMESKIP = 5;
 	
 	public static void main(String[] args) throws IOException {
 		File file = new File("initialTxtArray.txt");//basic text array with #s corresponding to different tiles 7x12
 		File imageFile = new File("Tiles.png");//row of tiles used in each level
 		
 		Level level = new Level(file, imageFile);
-		/*
-		DWORD next_game_tick = GetTickCount();
+		
+		//Game loop adapted from http://www.koonsolo.com/news/dewitters-gameloop/ 
+		long next_game_tick = System.currentTimeMillis();
 		// GetTickCount() returns the current number of milliseconds
 		// that have elapsed since the system was started
-	    int sleep_time = 0;
+		int loops;
+		float interpolation;
 		
 		boolean gameISrunning = true;
 		
 		while (gameISrunning){
-			level.update();
-			level.render();
+			
+			loops = 0;
+			while (System.currentTimeMillis() > next_game_tick && loops < MAX_FRAMESKIP){
+				level.update();
+				
+				next_game_tick += SKIP_TICKS;
+				loops++;
+			}
+			
+			interpolation = (float) (System.currentTimeMillis() + SKIP_TICKS - next_game_tick) / (float) (SKIP_TICKS);
+			level.draw();
 		}
 		
-		*   
-		*    const int TICKS_PER_SECOND = 25;
-    const int SKIP_TICKS = 1000 / TICKS_PER_SECOND;
-    const int MAX_FRAMESKIP = 5;
 
-    DWORD next_game_tick = GetTickCount();
-    int loops;
-    float interpolation;
-
-    bool game_is_running = true;
-    while( game_is_running ) {
-
-        loops = 0;
-        while( GetTickCount() > next_game_tick && loops < MAX_FRAMESKIP) {
-            update_game();
-
-            next_game_tick += SKIP_TICKS;
-            loops++;
-        }
-
-        interpolation = float( GetTickCount() + SKIP_TICKS - next_game_tick )
-                        / float( SKIP_TICKS );
-        display_game( interpolation );
-    }
-		*
-		*/
+	
 	}
 	
 }

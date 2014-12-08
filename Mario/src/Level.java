@@ -35,6 +35,11 @@ public class Level {
 	private static final int ARR_WIDTH = 64;//# of tiles in row
 	private static final int ARR_HEIGHT = 16;//# of tiles in column 
 	
+	private static final int PANEL_WIDTH = 32 * PXLS_PER_TILE;
+	private static final int PANEL_HEIGHT = ARR_HEIGHT * PXLS_PER_TILE;
+	
+	private static final int OFFSET = 4;//Number of tile columns that precede starting panel screen
+	
 	private int delta;//The TOP-LEFT CORNER of the Array and of the background image; changes with player key input
 	
 	//List of Active Sprites
@@ -55,7 +60,7 @@ public class Level {
 		frame = new JFrame();
 		frame.add(panel);
 		frame.setResizable(false);
-		frame.setSize(1024, ARR_HEIGHT * 32);//ARRAY_WIDTH will not be the same as the frame width
+		frame.setSize(PANEL_WIDTH, PANEL_HEIGHT);//ARRAY_WIDTH will not be the same as the frame width
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		
@@ -101,7 +106,8 @@ public class Level {
 	
 	}
 	
-	public void drawLevel() throws IOException{
+	public void draw() throws IOException{
+		panel.repaint();
 	}
 	
 	//Should go through array of active sprites in the level (initialized in constructor) and draw each of them
@@ -109,7 +115,7 @@ public class Level {
 		//for each sprite in array
 			//Draw each sprite
 		mario = new Sprite();
-		g.drawImage(mario.initialState, mario.xPos, mario.yPos, panel);//Will be handled by a for:each loop
+		g.drawImage(mario.defaultImg, mario.xPos, mario.yPos, panel);//Will be handled by a for:each loop
 	}
 	
 	private class Controller implements KeyListener {
@@ -127,12 +133,16 @@ public class Level {
 			
 			if (keyCode == KeyEvent.VK_LEFT){
 				leftKeyPressed = true;
-				delta -= MOVE_STEP;
-				panel.repaint();
+				if (delta > -OFFSET * PXLS_PER_TILE){//LEFT-HAND boundary for scrolling
+					delta -= MOVE_STEP;
+				}
+				//panel.repaint();
 			} else if (keyCode == KeyEvent.VK_RIGHT){
 				rightKeyPressed = true;
-				delta += MOVE_STEP;
-				panel.repaint();
+				if (delta < (ARR_WIDTH - OFFSET) * PXLS_PER_TILE){//RIGHT-HAND boundary for scrolling
+					delta += MOVE_STEP;
+				}
+				//panel.repaint();
 			} else if (keyCode == KeyEvent.VK_UP){
 				upKeyPressed = true;
 			}
@@ -170,6 +180,7 @@ public class Level {
 		private Graphics g;
 		
 		private BufferedImage bkgrdImg;
+		private BufferedImage resizedImage;
 		
 		private ScrollingPanel(){
 			Graphics g = getGraphics();
@@ -179,6 +190,13 @@ public class Level {
 			} catch (IOException e) {
 				System.out.println("Error translating background image from image file \"background.png\"");
 			}
+			
+			//TODO: Resolution's not great
+			resizedImage = new BufferedImage(PANEL_WIDTH, PANEL_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+			Graphics2D graphics = resizedImage.createGraphics();//SCALES IMAGE TO MATCH PANEL H & W (facilitates scrolling)
+			graphics.drawImage(bkgrdImg, 0, 0, PANEL_WIDTH, PANEL_HEIGHT, null);
+			graphics.dispose();
+			
 		}
 		
 		//SCROLLING IS NOW FULLY FUNCTIONAL (though boundaries haven't been implemented)
@@ -187,24 +205,16 @@ public class Level {
 			super.paintComponent(g);
 			
 			//BACKGROUND
-			int pWidth = panel.getWidth();//Currently same as image width
-			int pHeight = panel.getHeight();
+			int imgWidth = panel.getWidth();//Currently same as image width
+			int imgHeight = panel.getHeight();
 			
-			int breakPt = pWidth - (delta % pWidth);
+			int breakPt = PANEL_WIDTH - (delta % PANEL_WIDTH);
 			if (delta < 0){
-				breakPt = Math.abs(delta % pWidth);
+				breakPt = Math.abs(delta % PANEL_WIDTH);
 			}
 
-			//TODO: Resolution's not great
-			int imgWidth = pWidth;//Desired width/height of new scaled image
-			int imgHeight = pHeight;
-			BufferedImage resizedImage = new BufferedImage(imgWidth, imgHeight, BufferedImage.TYPE_INT_ARGB);
-			Graphics2D graphics = resizedImage.createGraphics();
-			graphics.drawImage(bkgrdImg, 0, 0, imgWidth, imgHeight, null);
-			graphics.dispose();
-			
-			g.drawImage(resizedImage, breakPt - pWidth, 0, breakPt, pHeight, 0, 0, imgWidth, imgHeight, panel);
-			g.drawImage(resizedImage, breakPt, 0, breakPt + pWidth, pHeight, 0, 0, imgWidth, imgHeight, panel);
+			g.drawImage(resizedImage, breakPt - PANEL_WIDTH, 0, breakPt, PANEL_HEIGHT, 0, 0, imgWidth, imgHeight, panel);
+			g.drawImage(resizedImage, breakPt, 0, breakPt + PANEL_WIDTH, PANEL_HEIGHT, 0, 0, imgWidth, imgHeight, panel);
 			
 			//BRICK LAYOUT
 			int drawXPos, drawYPos;
@@ -216,7 +226,7 @@ public class Level {
 					drawYPos = row * PXLS_PER_TILE;
 					
 					int tileType = layout[column][row];
-					if (drawXPos < pWidth + PXLS_PER_TILE && drawXPos >= -PXLS_PER_TILE){//Prevents off-panel stuff from being drawn 
+					if (drawXPos < PANEL_WIDTH + PXLS_PER_TILE && drawXPos >= -PXLS_PER_TILE){//Prevents off-panel stuff from being drawn 
 						g.drawImage(tiles[tileType], drawXPos, drawYPos, panel);
 					}
 				}
