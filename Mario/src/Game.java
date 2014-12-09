@@ -15,6 +15,7 @@ public class Game {
 		Level level = new Level(file, imageFile);
 		
 		//Game loop adapted from http://www.koonsolo.com/news/dewitters-gameloop/ 
+		
 		long next_game_tick = System.currentTimeMillis();
 		// GetTickCount() returns the current number of milliseconds
 		// that have elapsed since the system was started

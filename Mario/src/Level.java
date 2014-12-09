@@ -136,23 +136,14 @@ public class Level {
 				if (delta > -OFFSET * PXLS_PER_TILE){//LEFT-HAND boundary for scrolling
 					delta -= MOVE_STEP;
 				}
-				//panel.repaint();
 			} else if (keyCode == KeyEvent.VK_RIGHT){
 				rightKeyPressed = true;
-				if (delta < (ARR_WIDTH - OFFSET) * PXLS_PER_TILE){//RIGHT-HAND boundary for scrolling
+				if (delta < (ARR_WIDTH - OFFSET) * PXLS_PER_TILE - PANEL_WIDTH){//RIGHT-HAND boundary for scrolling
 					delta += MOVE_STEP;
 				}
-				//panel.repaint();
 			} else if (keyCode == KeyEvent.VK_UP){
 				upKeyPressed = true;
 			}
-		/*	try {
-				//updateLevel();
-				////updateSprites();//goes in and adds delta to sprite's position; tests for collision; changes mario's state
-				drawLevel();
-			} catch (IOException e) {
-				System.out.println("Error: drawing level");
-			}*/
 		}
 
 		@Override
