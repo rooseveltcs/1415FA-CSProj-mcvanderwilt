@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -37,8 +38,6 @@ public class Level {
 	
 	private static final int PANEL_WIDTH = 32 * PXLS_PER_TILE;
 	private static final int PANEL_HEIGHT = ARR_HEIGHT * PXLS_PER_TILE;
-	
-	private static final int OFFSET = 4;//Number of tile columns that precede starting panel screen
 	
 	private int delta;//The TOP-LEFT CORNER of the Array and of the background image; changes with player key input
 	
@@ -115,7 +114,10 @@ public class Level {
 		//for each sprite in array
 			//Draw each sprite
 		mario = new Sprite();
-		g.drawImage(mario.defaultImg, mario.xPos, mario.yPos, panel);//Will be handled by a for:each loop
+		//g.drawImage(mario.defaultImg, mario.xPos, mario.yPos, panel);//Will be handled by a for:each loop
+		g.drawImage(mario.defaultImg, mario.xPos, mario.yPos, -mario.width, mario.height, panel);//EXPERIMENT FLIPPING IMAGE, don;t know if i will use
+		//AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
+		//tx.translate(-mario.defaultImg.getWidth(null), 0);
 	}
 	
 	private class Controller implements KeyListener {
@@ -133,12 +135,12 @@ public class Level {
 			
 			if (keyCode == KeyEvent.VK_LEFT){
 				leftKeyPressed = true;
-				if (delta > -OFFSET * PXLS_PER_TILE){//LEFT-HAND boundary for scrolling
+				if (delta > 0){//LEFT-HAND boundary for scrolling
 					delta -= MOVE_STEP;
 				}
 			} else if (keyCode == KeyEvent.VK_RIGHT){
 				rightKeyPressed = true;
-				if (delta < (ARR_WIDTH - OFFSET) * PXLS_PER_TILE - PANEL_WIDTH){//RIGHT-HAND boundary for scrolling
+				if (delta < (ARR_WIDTH) * PXLS_PER_TILE - PANEL_WIDTH){//RIGHT-HAND boundary for scrolling
 					delta += MOVE_STEP;
 				}
 			} else if (keyCode == KeyEvent.VK_UP){
@@ -208,7 +210,8 @@ public class Level {
 			g.drawImage(resizedImage, breakPt, 0, breakPt + PANEL_WIDTH, PANEL_HEIGHT, 0, 0, imgWidth, imgHeight, panel);
 			
 			//BRICK LAYOUT
-			int drawXPos, drawYPos;
+			//to account for offset: 0 delta now coordinates with column 5
+			int drawXPos, drawYPos;//place where tile will be drawn on JPanel
 			for (int row = 0; row < ARR_HEIGHT; row++){//Stays unchanging
 				for (int column = 0; column < ARR_WIDTH; column++){
 					
@@ -222,6 +225,7 @@ public class Level {
 					}
 				}
 			}
+			
 			try {
 				drawSprites(g);
 			} catch (IOException e) {

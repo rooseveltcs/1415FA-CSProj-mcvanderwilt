@@ -22,8 +22,8 @@ public class Sprite {
 	
 	//THIS IS FOR TESTING PURPOSES ONLY. WILL BE AN ABSTRACT CLASS WITH SPRITES AS SUBCLASSES
 	public Sprite() throws IOException {
-		xPos = 10;
-		yPos = 10;
+		xPos = 17 * 32;
+		yPos = 8 * 32;
 		
 		//default width and height (would change during game)
 		width = 32;
@@ -41,6 +41,10 @@ public class Sprite {
 	public void update(int delta, int vertDelta){
 		xPos += delta;
 		yPos += vertDelta;
+	}
+	
+	public void moveLeft(){
+		
 	}
 	
 	public BufferedImage sizeImage(int width, int height){
