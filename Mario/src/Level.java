@@ -1,10 +1,7 @@
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -16,8 +13,6 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-//TODO: implement offset and boundaries (so scrolling stops when level txt file ends).
-//TODO: Create game loop
 public class Level {
 	
 	private File txtFile;
@@ -43,8 +38,8 @@ public class Level {
 	
 	//List of Active Sprites
 	//Based on text file with all sprite names, types, positions 
-	private ArrayList<Sprite> spriteList;
-	private Sprite mario;
+	private ArrayList<SpriteX> spriteList;
+	private SpriteX mario;
 	
 	public Level(File f, File imgF) throws IOException {
 		txtFile = f;
@@ -58,8 +53,10 @@ public class Level {
 		
 		frame = new JFrame();
 		frame.add(panel);
+		frame.setTitle("Mario");
+		frame.setIconImage(ImageIO.read(new File("mario_Left1.png")));
 		frame.setResizable(false);
-		frame.setSize(PANEL_WIDTH, PANEL_HEIGHT);//ARRAY_WIDTH will not be the same as the frame width
+		frame.setSize(PANEL_WIDTH, PANEL_HEIGHT);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		
@@ -80,7 +77,6 @@ public class Level {
 		
 		layout = new int[ARR_WIDTH][ARR_HEIGHT];
 		txtToArray();
-		
 	}
 	
 	private int[][] txtToArray() throws FileNotFoundException {
@@ -113,9 +109,12 @@ public class Level {
 	public void drawSprites(Graphics g) throws IOException{
 		//for each sprite in array
 			//Draw each sprite
-		mario = new Sprite();
-		//g.drawImage(mario.defaultImg, mario.xPos, mario.yPos, panel);//Will be handled by a for:each loop
-		g.drawImage(mario.defaultImg, mario.xPos, mario.yPos, -mario.width, mario.height, panel);//EXPERIMENT FLIPPING IMAGE, don;t know if i will use
+		mario = new SpriteX();
+		if (mario.facingleft){
+			g.drawImage(mario.defaultImg, mario.xPos, mario.yPos, panel);//Will be handled by a for:each loop
+		} else if (!mario.facingleft){
+			g.drawImage(mario.defaultImg, mario.xPos, mario.yPos, -mario.width, mario.height, panel);//EXPERIMENT FLIPPING IMAGE, don;t know if i will use
+		}
 		//AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
 		//tx.translate(-mario.defaultImg.getWidth(null), 0);
 	}
@@ -135,6 +134,7 @@ public class Level {
 			
 			if (keyCode == KeyEvent.VK_LEFT){
 				leftKeyPressed = true;
+				mario.moveLeft();
 				if (delta > 0){//LEFT-HAND boundary for scrolling
 					delta -= MOVE_STEP;
 				}
@@ -145,6 +145,7 @@ public class Level {
 				}
 			} else if (keyCode == KeyEvent.VK_UP){
 				upKeyPressed = true;
+				mario.update(0, MOVE_STEP);
 			}
 		}
 
@@ -189,7 +190,6 @@ public class Level {
 			Graphics2D graphics = resizedImage.createGraphics();//SCALES IMAGE TO MATCH PANEL H & W (facilitates scrolling)
 			graphics.drawImage(bkgrdImg, 0, 0, PANEL_WIDTH, PANEL_HEIGHT, null);
 			graphics.dispose();
-			
 		}
 		
 		//SCROLLING IS NOW FULLY FUNCTIONAL (though boundaries haven't been implemented)
@@ -215,7 +215,6 @@ public class Level {
 			for (int row = 0; row < ARR_HEIGHT; row++){//Stays unchanging
 				for (int column = 0; column < ARR_WIDTH; column++){
 					
-					//Assumes that one 32pixel panel is equivalent to mario's movement
 					drawXPos = column * PXLS_PER_TILE - delta;
 					drawYPos = row * PXLS_PER_TILE;
 					
