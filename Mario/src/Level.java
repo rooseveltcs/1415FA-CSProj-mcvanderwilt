@@ -38,8 +38,8 @@ public class Level {
 	
 	//List of Active Sprites
 	//Based on text file with all sprite names, types, positions 
-	private ArrayList<SpriteX> spriteList;
-	private SpriteX mario;
+	private ArrayList<Sprite> spriteList;
+	//private SpriteX mario;
 	
 	public Level(File f, File imgF) throws IOException {
 		txtFile = f;
@@ -77,6 +77,16 @@ public class Level {
 		
 		layout = new int[ARR_WIDTH][ARR_HEIGHT];
 		txtToArray();
+		
+		spriteList = new ArrayList<Sprite>();
+		
+		Sprite mario = new Mario();
+		State running = new State("running", "mario_Left1.png");
+		mario.addState(running);
+		
+		spriteList.add(mario);
+		
+		
 	}
 	
 	private int[][] txtToArray() throws FileNotFoundException {
@@ -109,14 +119,18 @@ public class Level {
 	public void drawSprites(Graphics g) throws IOException{
 		//for each sprite in array
 			//Draw each sprite
-		mario = new SpriteX();
+		for (Sprite s : spriteList){
+			s.display(g);
+		}
+		/*mario = new SpriteX();
 		if (mario.facingleft){
 			g.drawImage(mario.defaultImg, mario.xPos, mario.yPos, panel);//Will be handled by a for:each loop
 		} else if (!mario.facingleft){
 			g.drawImage(mario.defaultImg, mario.xPos, mario.yPos, -mario.width, mario.height, panel);//EXPERIMENT FLIPPING IMAGE, don;t know if i will use
 		}
 		//AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
-		//tx.translate(-mario.defaultImg.getWidth(null), 0);
+		//tx.translate(-mario.defaultImg.getWidth(null), 0); */
+		
 	}
 	
 	private class Controller implements KeyListener {
@@ -134,7 +148,7 @@ public class Level {
 			
 			if (keyCode == KeyEvent.VK_LEFT){
 				leftKeyPressed = true;
-				mario.moveLeft();
+				//mario.moveLeft();
 				if (delta > 0){//LEFT-HAND boundary for scrolling
 					delta -= MOVE_STEP;
 				}
@@ -145,7 +159,7 @@ public class Level {
 				}
 			} else if (keyCode == KeyEvent.VK_UP){
 				upKeyPressed = true;
-				mario.update(0, MOVE_STEP);
+				//mario.update(0, MOVE_STEP);
 			}
 		}
 
