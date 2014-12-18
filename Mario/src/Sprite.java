@@ -13,6 +13,8 @@ public abstract class Sprite {
 	public int width;
 	public int height;
 	
+	private boolean facingLeft;
+	
 	public ArrayList<State> states;
 	public State currentState;
 	
@@ -31,19 +33,21 @@ public abstract class Sprite {
 		return resizedImage;
 	}
 	
-	public void addState(State state){
-		states = new ArrayList<State>();
-		states.add(state);
-	}
-	
-	
 	public void setCurrentState(State state){//direction ignored currently
 		currentState = state;
 	}
 	
+	public void faceLeft(boolean left){
+		facingLeft = left;
+	}
+	
 	public void display(Graphics g){
 		for (BufferedImage i : currentState.images){
-			g.drawImage(i, xPos, yPos, null);
+			if (!facingLeft) {
+				g.drawImage(i, xPos, yPos, -width, height, null);
+			} else {
+				g.drawImage(i, xPos, yPos, null);
+			}
 		}
 	}
 }

@@ -34,7 +34,8 @@ public class Level {
 	private static final int PANEL_WIDTH = 32 * PXLS_PER_TILE;
 	private static final int PANEL_HEIGHT = ARR_HEIGHT * PXLS_PER_TILE;
 	
-	private int delta;//The TOP-LEFT CORNER of the Array and of the background image; changes with player key input
+	private int deltaX;//The TOP-LEFT CORNER of the Array and of the background image; changes with player key input
+	private int deltaY;
 	
 	//List of Active Sprites
 	//Based on text file with all sprite names, types, positions 
@@ -73,7 +74,8 @@ public class Level {
 			tiles[t] = tileSet.getSubimage(PXLS_PER_TILE * t, 0, PXLS_PER_TILE, PXLS_PER_TILE);
 		}
 		
-		delta = 0;
+		deltaX = 0;
+		deltaY = 0;
 		
 		layout = new int[ARR_WIDTH][ARR_HEIGHT];
 		txtToArray();
@@ -81,9 +83,6 @@ public class Level {
 		spriteList = new ArrayList<Sprite>();
 		
 		Sprite mario = new Mario();
-		State running = new State("running", "mario_Left1.png");
-		mario.addState(running);
-		
 		spriteList.add(mario);
 		
 		
@@ -122,15 +121,6 @@ public class Level {
 		for (Sprite s : spriteList){
 			s.display(g);
 		}
-		/*mario = new SpriteX();
-		if (mario.facingleft){
-			g.drawImage(mario.defaultImg, mario.xPos, mario.yPos, panel);//Will be handled by a for:each loop
-		} else if (!mario.facingleft){
-			g.drawImage(mario.defaultImg, mario.xPos, mario.yPos, -mario.width, mario.height, panel);//EXPERIMENT FLIPPING IMAGE, don;t know if i will use
-		}
-		//AffineTransform tx = AffineTransform.getScaleInstance(-1, 1);
-		//tx.translate(-mario.defaultImg.getWidth(null), 0); */
-		
 	}
 	
 	private class Controller implements KeyListener {
@@ -140,6 +130,7 @@ public class Level {
 		private boolean leftKeyPressed;
 		private boolean rightKeyPressed;
 		private boolean upKeyPressed;
+		private boolean downKeyPressed;
 		
 		@Override
 		public void keyPressed(KeyEvent ev) {
@@ -148,18 +139,31 @@ public class Level {
 			
 			if (keyCode == KeyEvent.VK_LEFT){
 				leftKeyPressed = true;
-				//mario.moveLeft();
-				if (delta > 0){//LEFT-HAND boundary for scrolling
-					delta -= MOVE_STEP;
+				if (deltaX > 0){//LEFT-HAND boundary for scrolling
+					deltaX -= MOVE_STEP;
 				}
 			} else if (keyCode == KeyEvent.VK_RIGHT){
 				rightKeyPressed = true;
-				if (delta < (ARR_WIDTH) * PXLS_PER_TILE - PANEL_WIDTH){//RIGHT-HAND boundary for scrolling
-					delta += MOVE_STEP;
+				if (deltaX < (ARR_WIDTH) * PXLS_PER_TILE - PANEL_WIDTH){//RIGHT-HAND boundary for scrolling
+					deltaX += MOVE_STEP;
 				}
 			} else if (keyCode == KeyEvent.VK_UP){
 				upKeyPressed = true;
-				//mario.update(0, MOVE_STEP);
+				deltaY += MOVE_STEP;
+			} else if (keyCode == KeyEvent.VK_DOWN){
+				downKeyPressed = true;
+				deltaY -= MOVE_STEP;
+				
+			}
+			//WHEN SWITCHING BTWN UP AND DOWN>>>LAG.
+			
+			for (Sprite s : spriteList){
+				if (leftKeyPressed){
+					s.faceLeft(true);
+				} else if (rightKeyPressed){
+					s.faceLeft(false);
+				}
+				s.update(deltaX, deltaY);
 			}
 		}
 
@@ -174,7 +178,6 @@ public class Level {
 				rightKeyPressed = false;
 			} else if (keyCode == KeyEvent.VK_UP){
 				upKeyPressed = false;
-				System.out.println(delta);
 			}
 		}
 
@@ -185,14 +188,10 @@ public class Level {
 	
 	private class ScrollingPanel extends JPanel{
 		
-		private Graphics g;
-		
 		private BufferedImage bkgrdImg;
 		private BufferedImage resizedImage;
 		
 		private ScrollingPanel(){
-			Graphics g = getGraphics();
-			
 			try {
 				bkgrdImg = ImageIO.read(new File ("background.png"));
 			} catch (IOException e) {
@@ -215,9 +214,9 @@ public class Level {
 			int imgWidth = panel.getWidth();//Currently same as image width
 			int imgHeight = panel.getHeight();
 			
-			int breakPt = PANEL_WIDTH - (delta % PANEL_WIDTH);
-			if (delta < 0){
-				breakPt = Math.abs(delta % PANEL_WIDTH);
+			int breakPt = PANEL_WIDTH - (deltaX % PANEL_WIDTH);
+			if (deltaX < 0){
+				breakPt = Math.abs(deltaX % PANEL_WIDTH);
 			}
 
 			g.drawImage(resizedImage, breakPt - PANEL_WIDTH, 0, breakPt, PANEL_HEIGHT, 0, 0, imgWidth, imgHeight, panel);
@@ -229,7 +228,7 @@ public class Level {
 			for (int row = 0; row < ARR_HEIGHT; row++){//Stays unchanging
 				for (int column = 0; column < ARR_WIDTH; column++){
 					
-					drawXPos = column * PXLS_PER_TILE - delta;
+					drawXPos = column * PXLS_PER_TILE - deltaX;
 					drawYPos = row * PXLS_PER_TILE;
 					
 					int tileType = layout[column][row];
