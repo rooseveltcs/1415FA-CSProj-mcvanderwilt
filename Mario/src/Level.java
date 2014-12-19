@@ -17,6 +17,7 @@ public class Level {
 	
 	private File txtFile;
 	private File imgFile;
+	private File spriteFile;
 	
 	BufferedImage[] tiles;
 	
@@ -42,9 +43,10 @@ public class Level {
 	private ArrayList<Sprite> spriteList;
 	//private SpriteX mario;
 	
-	public Level(File f, File imgF) throws IOException {
+	public Level(File f, File imgF, File spriteF) throws IOException {
 		txtFile = f;
 		imgFile = imgF;
+		spriteFile = spriteF;//contains a list of sprites - w/ type and initial x and y pos.
 		
 		panel = new ScrollingPanel();
 		
@@ -79,13 +81,7 @@ public class Level {
 		
 		layout = new int[ARR_WIDTH][ARR_HEIGHT];
 		txtToArray();
-		
-		spriteList = new ArrayList<Sprite>();
-		
-		Sprite mario = new Mario();
-		spriteList.add(mario);
-		
-		
+		txtToSprites();
 	}
 	
 	private int[][] txtToArray() throws FileNotFoundException {
@@ -99,6 +95,24 @@ public class Level {
 		}
 		scanFile.close();
 		return layout;
+	}
+	
+	private ArrayList<Sprite> txtToSprites() throws IOException {
+		
+		spriteList = new ArrayList<Sprite>();
+		
+		Scanner scanFile = new Scanner(spriteFile);
+		while (scanFile.hasNextLine()){
+			String spriteType = scanFile.next();
+			int spXPos = scanFile.nextInt();
+			int spYPos = scanFile.nextInt();
+			if (spriteType.equalsIgnoreCase("mario")){
+				Sprite s = new Mario(spXPos, spYPos);
+				spriteList.add(s);
+			}
+			//needs to initialize sprite with correct type - can make more uniform (?)
+		}
+		return spriteList;
 	}
 	
 	//UPDATE LEVEL: shift background according to Mario's xPos/direction
@@ -151,11 +165,8 @@ public class Level {
 				upKeyPressed = true;
 				deltaY += MOVE_STEP;
 			} else if (keyCode == KeyEvent.VK_DOWN){
-				downKeyPressed = true;
-				deltaY -= MOVE_STEP;
-				
+				//kneel 
 			}
-			//WHEN SWITCHING BTWN UP AND DOWN>>>LAG.
 			
 			for (Sprite s : spriteList){
 				if (leftKeyPressed){

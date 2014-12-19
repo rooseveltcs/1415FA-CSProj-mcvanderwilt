@@ -46,7 +46,7 @@ public abstract class Sprite {
 			if (!facingLeft) {
 				g.drawImage(i, xPos, yPos, -width, height, null);
 			} else {
-				g.drawImage(i, xPos, yPos, null);
+				g.drawImage(i, xPos - 32, yPos, null);//-32 keeps top left corner in same place
 			}
 		}
 	}
