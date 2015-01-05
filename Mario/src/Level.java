@@ -49,7 +49,6 @@ public class Level {
 		spriteFile = spriteF;//contains a list of sprites - w/ type and initial x and y pos.
 		
 		panel = new ScrollingPanel();
-		
 		panel.setFocusable(true);
 		panel.requestFocus();
 		panel.addKeyListener(new Controller());
@@ -119,9 +118,24 @@ public class Level {
 	public void update() {
 		
 	}
+	
 	//UPDATE SPRITES: shift position according to Mario's movement; test for collision detections
 	public void updateSprites(){
-	
+	//test collision	
+		//for (Sprite s : spriteList) {
+		//get Sprite's location/bounding box
+		//check array at that location:
+			//to see if there is a coin (change value in array to 0)
+			//to see if there is a brick and depending on 
+				//if brick collides with right or left wall of bounding box (HORIZONTALLY)--sprite stops (and if enemy turns around)
+				//if brick collides w/ bottom/top of bounding box (VERTICALLY) - sprite stops vert. movement
+			//to see if Mario collides w/ bottom of ? box
+		//check spriteList to see if any other sprites are colliding (deal w/ accordingly with method in sprite's class
+	//move
+		//for (Sprite s : spriteList) {
+		//change sprite's position based on delta
+		//change sprite's state (i.e. jumping, facing left)
+		//account for gravity, etc.}
 	}
 	
 	public void draw() throws IOException{
@@ -137,6 +151,7 @@ public class Level {
 		}
 	}
 	
+	//TODO: Controller should just update delta and the which way Mario is facing; shouldn't call repaint component or actively update Sprites 
 	private class Controller implements KeyListener {
 		
 		private static final int MOVE_STEP = 10;//movement per step (push of arrow)
@@ -165,15 +180,16 @@ public class Level {
 				upKeyPressed = true;
 				deltaY += MOVE_STEP;
 			} else if (keyCode == KeyEvent.VK_DOWN){
-				//kneel 
+				//set to state "kneel" if on a block 
 			}
 			
+			//move to  updateSprites
 			for (Sprite s : spriteList){
 				if (leftKeyPressed){
 					s.faceLeft(true);
 				} else if (rightKeyPressed){
 					s.faceLeft(false);
-				}
+				} //else if (upKeyPressed) set Mario's state to jumping
 				s.update(deltaX, deltaY);
 			}
 		}
@@ -209,14 +225,13 @@ public class Level {
 				System.out.println("Error translating background image from image file \"background.png\"");
 			}
 			
-			//TODO: Resolution's not great
 			resizedImage = new BufferedImage(PANEL_WIDTH, PANEL_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 			Graphics2D graphics = resizedImage.createGraphics();//SCALES IMAGE TO MATCH PANEL H & W (facilitates scrolling)
 			graphics.drawImage(bkgrdImg, 0, 0, PANEL_WIDTH, PANEL_HEIGHT, null);
 			graphics.dispose();
 		}
 		
-		//SCROLLING IS NOW FULLY FUNCTIONAL (though boundaries haven't been implemented)
+		//TODO: SCROLLING IS NOW FULLY FUNCTIONAL (though left-hand boundary begins at 0)
 		@Override
 		public void paintComponent(Graphics g){
 			super.paintComponent(g);
@@ -248,7 +263,6 @@ public class Level {
 					}
 				}
 			}
-			
 			try {
 				drawSprites(g);
 			} catch (IOException e) {

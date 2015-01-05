@@ -1,5 +1,4 @@
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 public class Game {
@@ -9,6 +8,7 @@ public class Game {
 	private static final int MAX_FRAMESKIP = 5;
 	
 	public static void main(String[] args) throws IOException {
+		
 		File file = new File("initialTxtArray.txt");//basic text array with #s corresponding to different tiles 7x12
 		File imageFile = new File("Tiles.png");//row of tiles used in each level
 		File spriteFile = new File("SpriteFile.txt");
@@ -36,11 +36,11 @@ public class Game {
 			}
 			
 			interpolation = (float) (System.currentTimeMillis() + SKIP_TICKS - next_game_tick) / (float) (SKIP_TICKS);
+			//level.draw(interpolation);
 			level.draw();
+			//TODO: game still does not account for lag
+			//TODO: draw Level needs to account for interpolation (or game loop needs to modified/removed)
 		}
-		
-
-	
 	}
 	
 }

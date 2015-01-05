@@ -1,3 +1,5 @@
+//OLD SPRITE CLASS (still being used in Level while new Sprite.java class is being sorted out)
+
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
