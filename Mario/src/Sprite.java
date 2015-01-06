@@ -13,7 +13,7 @@ public abstract class Sprite {
 	public int width;
 	public int height;
 	
-	private boolean facingLeft;
+	public boolean facingLeft;
 	
 	public ArrayList<State> states;
 	public State currentState;
@@ -37,8 +37,7 @@ public abstract class Sprite {
 		currentState = state;
 	}
 	
-	public void faceLeft(boolean left){
-		facingLeft = left;
+	public void leftPressed(boolean left){
 	}
 	
 	public void display(Graphics g){

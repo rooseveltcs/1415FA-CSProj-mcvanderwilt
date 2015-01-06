@@ -1,5 +1,6 @@
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
@@ -108,21 +109,29 @@ public class Level {
 			if (spriteType.equalsIgnoreCase("mario")){
 				Sprite s = new Mario(spXPos, spYPos);
 				spriteList.add(s);
+			} else {
+				System.out.println("Error: unaccounted for sprite type in sprite file");
 			}
 			//needs to initialize sprite with correct type - can make more uniform (?)
 		}
+		scanFile.close();
+		System.out.println(spriteList.toString());
 		return spriteList;
 	}
 	
 	//UPDATE LEVEL: shift background according to Mario's xPos/direction
-	public void update() {
+	public void updateX() {
 		
 	}
 	
 	//UPDATE SPRITES: shift position according to Mario's movement; test for collision detections
-	public void updateSprites(){
+	public void updateSpritesX(){
 	//test collision	
-		//for (Sprite s : spriteList) {
+		for (Sprite s : spriteList) {
+			Rectangle spriteBox = s.getBoundingBox();
+			//get corresponding array location
+			System.out.println(layout[deltaX / 32][deltaY/32]);
+		}
 		//get Sprite's location/bounding box
 		//check array at that location:
 			//to see if there is a coin (change value in array to 0)
@@ -163,7 +172,7 @@ public class Level {
 		
 		@Override
 		public void keyPressed(KeyEvent ev) {
-			
+			//TODO: Account for multiple-keys pressed
 			int keyCode = ev.getKeyCode();
 			
 			if (keyCode == KeyEvent.VK_LEFT){
@@ -183,15 +192,9 @@ public class Level {
 				//set to state "kneel" if on a block 
 			}
 			
-			//move to  updateSprites
-			for (Sprite s : spriteList){
-				if (leftKeyPressed){
-					s.faceLeft(true);
-				} else if (rightKeyPressed){
-					s.faceLeft(false);
-				} //else if (upKeyPressed) set Mario's state to jumping
-				s.update(deltaX, deltaY);
-			}
+			update();
+			updateSprites();
+			
 		}
 
 		@Override
@@ -208,6 +211,33 @@ public class Level {
 			}
 		}
 
+		public void update(){
+			
+		}
+		
+		public void updateSprites(){
+			for (Sprite s : spriteList){
+				if (leftKeyPressed){
+					s.leftPressed(true);
+				} else if (rightKeyPressed){
+					s.leftPressed(false);
+				} //else if (upKeyPressed) set Mario's state to jumping
+				s.update(deltaX, deltaY);
+				
+				//collision detection
+				Rectangle spriteBox = s.getBoundingBox();
+				//use intersection method to test collision from all sides 
+				
+				
+				//get corresponding array location
+				int tileType = layout[s.xPos/32][s.yPos/32];
+				//TODO: I think concept is sound, though currently mario doesn't move from his initial position (tile type doesn't change)
+				//TODO: doesn't account for all 4
+				System.out.println(s.xPos/32 + " " + s.yPos/32 + " " + tileType);
+			}
+			
+		}
+		
 		@Override
 		public void keyTyped(KeyEvent ev) {
 		}
@@ -249,7 +279,7 @@ public class Level {
 			g.drawImage(resizedImage, breakPt, 0, breakPt + PANEL_WIDTH, PANEL_HEIGHT, 0, 0, imgWidth, imgHeight, panel);
 			
 			//BRICK LAYOUT
-			//to account for offset: 0 delta now coordinates with column 5
+
 			int drawXPos, drawYPos;//place where tile will be drawn on JPanel
 			for (int row = 0; row < ARR_HEIGHT; row++){//Stays unchanging
 				for (int column = 0; column < ARR_WIDTH; column++){
@@ -266,7 +296,7 @@ public class Level {
 			try {
 				drawSprites(g);
 			} catch (IOException e) {
-				System.out.println("Error drawing sprites (IO Exception).");
+				System.out.println("Error drawing sprites.");
 			}
 		}
 	}
