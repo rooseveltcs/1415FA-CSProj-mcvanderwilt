@@ -15,6 +15,8 @@ public abstract class Sprite {
 	
 	public boolean facingLeft;
 	
+	public static final double ACCofGRAVITY = -9.8;
+	
 	public ArrayList<State> states;
 	public State currentState;
 	
@@ -47,6 +49,12 @@ public abstract class Sprite {
 			} else {
 				g.drawImage(i, xPos - width, yPos, null);//-width keeps top left corner in same place
 			}
+		}
+	}
+	
+	public void falling(boolean inAir){
+		while (inAir){
+			
 		}
 	}
 }

@@ -33,7 +33,9 @@ public class Level {
 	private static final int ARR_WIDTH = 64;//# of tiles in row
 	private static final int ARR_HEIGHT = 16;//# of tiles in column 
 	
-	private static final int PANEL_WIDTH = 32 * PXLS_PER_TILE;
+	private static final int TILES_WIDE = 32; //# of tiles across on panel
+	
+	private static final int PANEL_WIDTH =  TILES_WIDE * PXLS_PER_TILE;
 	private static final int PANEL_HEIGHT = ARR_HEIGHT * PXLS_PER_TILE;
 	
 	private int deltaX;//The TOP-LEFT CORNER of the Array and of the background image; changes with player key input
@@ -130,9 +132,10 @@ public class Level {
 		for (Sprite s : spriteList) {
 			Rectangle spriteBox = s.getBoundingBox();
 			//get corresponding array location
-			System.out.println(layout[deltaX / 32][deltaY/32]);
+			//System.out.println(layout[deltaX / 32][deltaY/32]);
 		}
 		//get Sprite's location/bounding box
+		//Make sure sprite is still on screen
 		//check array at that location:
 			//to see if there is a coin (change value in array to 0)
 			//to see if there is a brick and depending on 
@@ -163,6 +166,7 @@ public class Level {
 	//TODO: Controller should just update delta and the which way Mario is facing; shouldn't call repaint component or actively update Sprites 
 	private class Controller implements KeyListener {
 		
+		//TODO: not sure that motion should be uniform
 		private static final int MOVE_STEP = 10;//movement per step (push of arrow)
 		
 		private boolean leftKeyPressed;
@@ -282,6 +286,16 @@ public class Level {
 
 			int drawXPos, drawYPos;//place where tile will be drawn on JPanel
 			for (int row = 0; row < ARR_HEIGHT; row++){//Stays unchanging
+				//draw columns only from ___ to ____ + TILES_WIDE
+				int startArr = deltaX / 32;//left-most column drawn on screen
+				for (int column = startArr; column < startArr + TILES_WIDE; column++) {
+					drawXPos = deltaX % PXLS_PER_TILE;
+					drawYPos = row * PXLS_PER_TILE;	
+					
+					int tileType = layout[column][row];
+					g.drawImage(tiles[tileType], drawXPos, drawYPos, panel);
+				}
+				/*
 				for (int column = 0; column < ARR_WIDTH; column++){
 					
 					drawXPos = column * PXLS_PER_TILE - deltaX;
@@ -291,7 +305,7 @@ public class Level {
 					if (drawXPos < PANEL_WIDTH + PXLS_PER_TILE && drawXPos >= -PXLS_PER_TILE){//Prevents off-panel stuff from being drawn 
 						g.drawImage(tiles[tileType], drawXPos, drawYPos, panel);
 					}
-				}
+				} */
 			}
 			try {
 				drawSprites(g);
