@@ -7,8 +7,12 @@ import java.util.ArrayList;
 
 
 public abstract class Sprite {
+	//TODO: make floats?
 	public int xPos;
 	public int yPos;
+	
+	public float xVelocity;
+	public float yVelocity;
 	
 	public int width;
 	public int height;
@@ -52,9 +56,10 @@ public abstract class Sprite {
 		}
 	}
 	
-	public void falling(boolean inAir){
+	public void falling(boolean inAir, long time){
 		while (inAir){
-			
+			yPos += yVelocity * time;
+			yVelocity += ACCofGRAVITY * time;
 		}
 	}
 }

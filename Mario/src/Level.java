@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -40,6 +41,7 @@ public class Level {
 	
 	private int deltaX;//The TOP-LEFT CORNER of the Array and of the background image; changes with player key input
 	private int deltaY;
+	private int startArr;//left-most column of arr. being drawn on screen
 	
 	//List of Active Sprites
 	//Based on text file with all sprite names, types, positions 
@@ -225,7 +227,10 @@ public class Level {
 					s.leftPressed(true);
 				} else if (rightKeyPressed){
 					s.leftPressed(false);
-				} //else if (upKeyPressed) set Mario's state to jumping
+				} else if (upKeyPressed) {
+					//set Mario's state to jumping
+					//s.falling(true, System.currentTimeMillis());//TODO: Not sure where to derive time from
+				}
 				s.update(deltaX, deltaY);
 				
 				//collision detection
@@ -234,10 +239,9 @@ public class Level {
 				
 				
 				//get corresponding array location
-				int tileType = layout[s.xPos/32][s.yPos/32];
-				//TODO: I think concept is sound, though currently mario doesn't move from his initial position (tile type doesn't change)
-				//TODO: doesn't account for all 4
-				System.out.println(s.xPos/32 + " " + s.yPos/32 + " " + tileType);
+				int tileType = layout[startArr][s.yPos/32];
+				//TODO: Currently this
+				System.out.println(startArr + " " + (s.yPos/32) + " " + tileType);
 			}
 			
 		}
@@ -287,13 +291,16 @@ public class Level {
 			int drawXPos, drawYPos;//place where tile will be drawn on JPanel
 			for (int row = 0; row < ARR_HEIGHT; row++){//Stays unchanging
 				//draw columns only from ___ to ____ + TILES_WIDE
-				int startArr = deltaX / 32;//left-most column drawn on screen
-				for (int column = startArr; column < startArr + TILES_WIDE; column++) {
-					drawXPos = deltaX % PXLS_PER_TILE;
-					drawYPos = row * PXLS_PER_TILE;	
+				
+				startArr = deltaX / 32;//left-most column drawn on screen
+				for (int column = startArr; column <= startArr + TILES_WIDE; column++) {//TODO: THROWS INdex out of bounds exception when reaches final panel
+					drawXPos = column * PXLS_PER_TILE - deltaX;
+					drawYPos = row * PXLS_PER_TILE;
 					
 					int tileType = layout[column][row];
 					g.drawImage(tiles[tileType], drawXPos, drawYPos, panel);
+					g.setColor(Color.WHITE);
+					g.drawRect(drawXPos, drawYPos, PXLS_PER_TILE, PXLS_PER_TILE);//WHite grid for implementing collision detection
 				}
 				/*
 				for (int column = 0; column < ARR_WIDTH; column++){
