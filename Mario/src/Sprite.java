@@ -56,10 +56,11 @@ public abstract class Sprite {
 		}
 	}
 	
-	public void falling(boolean inAir, long time){
+	public void falling(boolean inAir, long elapsedt){
+		double elapsedTime = (double) elapsedt;
 		while (inAir){
-			yPos += yVelocity * time;
-			yVelocity += ACCofGRAVITY * time;
+			yPos += yVelocity * elapsedTime;
+			yVelocity += ACCofGRAVITY * elapsedTime;
 		}
 	}
 }

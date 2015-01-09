@@ -39,6 +39,8 @@ public class Level {
 	private static final int PANEL_WIDTH =  TILES_WIDE * PXLS_PER_TILE;
 	private static final int PANEL_HEIGHT = ARR_HEIGHT * PXLS_PER_TILE;
 	
+	private long time;
+	
 	private int deltaX;//The TOP-LEFT CORNER of the Array and of the background image; changes with player key input
 	private int deltaY;
 	private int startArr;//left-most column of arr. being drawn on screen
@@ -46,6 +48,7 @@ public class Level {
 	//List of Active Sprites
 	//Based on text file with all sprite names, types, positions 
 	private ArrayList<Sprite> spriteList;
+	private Sprite Mario;
 	//private SpriteX mario;
 	
 	public Level(File f, File imgF, File spriteF) throws IOException {
@@ -104,6 +107,7 @@ public class Level {
 	private ArrayList<Sprite> txtToSprites() throws IOException {
 		
 		spriteList = new ArrayList<Sprite>();
+		int numMarios = 0;//ensures that there is one (and only one mario created in the game)
 		
 		Scanner scanFile = new Scanner(spriteFile);
 		while (scanFile.hasNextLine()){
@@ -111,21 +115,25 @@ public class Level {
 			int spXPos = scanFile.nextInt();
 			int spYPos = scanFile.nextInt();
 			if (spriteType.equalsIgnoreCase("mario")){
-				Sprite s = new Mario(spXPos, spYPos);
-				spriteList.add(s);
+				Mario = new Mario(spXPos, spYPos);
+				spriteList.add(Mario);
+				numMarios++;
 			} else {
 				System.out.println("Error: unaccounted for sprite type in sprite file");
 			}
 			//needs to initialize sprite with correct type - can make more uniform (?)
 		}
 		scanFile.close();
+		if (numMarios != 1) {
+			System.out.println("Error inadequate number of Marios in Sprite file");//SET ERROR?
+		}
 		System.out.println(spriteList.toString());
 		return spriteList;
 	}
 	
 	//UPDATE LEVEL: shift background according to Mario's xPos/direction
-	public void updateX() {
-		
+	public void updateX(long t) {
+		time = t;
 	}
 	
 	//UPDATE SPRITES: shift position according to Mario's movement; test for collision detections
@@ -229,7 +237,7 @@ public class Level {
 					s.leftPressed(false);
 				} else if (upKeyPressed) {
 					//set Mario's state to jumping
-					//s.falling(true, System.currentTimeMillis());//TODO: Not sure where to derive time from
+					s.falling(true, time);//TODO: Not sure where to derive time from
 				}
 				s.update(deltaX, deltaY);
 				
@@ -239,12 +247,14 @@ public class Level {
 				
 				
 				//get corresponding array location
-				int tileType = layout[startArr][s.yPos/32];
-				//TODO: Currently this
+				int marArrXPos = Mario.xPos / 32;
+				
+				int tileType = layout[startArr + marArrXPos][s.yPos/32];
+				//to be used in collision detection (accurately evaluates which tiles Mario intersects)
+				//TODO: needs to check all 4
 				System.out.println(startArr + " " + (s.yPos/32) + " " + tileType);
 			}
-			
-		}
+		}			
 		
 		@Override
 		public void keyTyped(KeyEvent ev) {
@@ -292,7 +302,9 @@ public class Level {
 			for (int row = 0; row < ARR_HEIGHT; row++){//Stays unchanging
 				//draw columns only from ___ to ____ + TILES_WIDE
 				
-				startArr = deltaX / 32;//left-most column drawn on screen
+				if (deltaX < 32 * (ARR_WIDTH - TILES_WIDE)){
+					startArr = deltaX / 32;//left-most column drawn on screen
+				}
 				for (int column = startArr; column <= startArr + TILES_WIDE; column++) {//TODO: THROWS INdex out of bounds exception when reaches final panel
 					drawXPos = column * PXLS_PER_TILE - deltaX;
 					drawYPos = row * PXLS_PER_TILE;

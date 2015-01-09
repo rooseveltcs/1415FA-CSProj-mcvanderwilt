@@ -29,7 +29,7 @@ public class Game {
 			
 			loops = 0;
 			while (System.currentTimeMillis() > next_game_tick && loops < MAX_FRAMESKIP){
-				level.updateX();//not the one contained in controller class
+				level.updateX(System.currentTimeMillis());//not the one contained in controller class
 				
 				next_game_tick += SKIP_TICKS;
 				loops++;
@@ -40,6 +40,7 @@ public class Game {
 			level.draw();
 			//TODO: game still does not account for lag
 			//TODO: draw Level needs to account for interpolation (or game loop needs to modified/removed)
+		
 		}
 	}
 	
