@@ -39,8 +39,6 @@ public class Level {
 	private static final int PANEL_WIDTH =  TILES_WIDE * PXLS_PER_TILE;
 	private static final int PANEL_HEIGHT = ARR_HEIGHT * PXLS_PER_TILE;
 	
-	private long time;
-	
 	private int deltaX;//The TOP-LEFT CORNER of the Array and of the background image; changes with player key input
 	private int deltaY;
 	private int startArr;//left-most column of arr. being drawn on screen
@@ -132,8 +130,7 @@ public class Level {
 	}
 	
 	//UPDATE LEVEL: shift background according to Mario's xPos/direction
-	public void updateX(long t) {
-		time = t;
+	public void updateX() {
 	}
 	
 	//UPDATE SPRITES: shift position according to Mario's movement; test for collision detections
@@ -237,7 +234,7 @@ public class Level {
 					s.leftPressed(false);
 				} else if (upKeyPressed) {
 					//set Mario's state to jumping
-					s.falling(true, time);//TODO: Not sure where to derive time from
+					//s.falling(true);//TODO: Not sure where to derive time from
 				}
 				s.update(deltaX, deltaY);
 				
@@ -248,11 +245,24 @@ public class Level {
 				
 				//get corresponding array location
 				int marArrXPos = Mario.xPos / 32;
-				
+					//Mario.xPos = 64 currently
+				System.out.println(startArr);
+//start Arr is slightly off ~10 pxls				
 				int tileType = layout[startArr + marArrXPos][s.yPos/32];
 				//to be used in collision detection (accurately evaluates which tiles Mario intersects)
 				//TODO: needs to check all 4
-				System.out.println(startArr + " " + (s.yPos/32) + " " + tileType);
+				System.out.println((startArr + marArrXPos) + " " + (s.yPos/32) + " " + tileType);
+				
+				//COLLISION:
+				int x1 = s.xPos;
+				int x2 = x1 + s.width;
+				int y1 = s.yPos;
+				int y2 = y1 + s.height;
+				
+				
+				
+				int tlType = layout[x1/32][y1/32];
+				//System.out.println("Top corner: " + tlType);
 			}
 		}			
 		

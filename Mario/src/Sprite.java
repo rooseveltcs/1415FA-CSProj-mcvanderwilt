@@ -49,18 +49,21 @@ public abstract class Sprite {
 	public void display(Graphics g){
 		for (BufferedImage i : currentState.images){
 			if (!facingLeft) {
-				g.drawImage(i, xPos, yPos, -width, height, null);
+				g.drawImage(i, xPos + width, yPos, -width, height, null);
 			} else {
-				g.drawImage(i, xPos - width, yPos, null);//-width keeps top left corner in same place
+				g.drawImage(i, xPos, yPos, null);//-width keeps top left corner in same place
 			}
+			g.drawRect(xPos, yPos, width, height);//shows bounding box
+			g.fillOval(xPos - 5, yPos - 5, 10, 10);
 		}
 	}
 	
-	public void falling(boolean inAir, long elapsedt){
-		double elapsedTime = (double) elapsedt;
+	public void falling(boolean inAir){
+		float elapsedTime = 0;
 		while (inAir){
 			yPos += yVelocity * elapsedTime;
 			yVelocity += ACCofGRAVITY * elapsedTime;
+			elapsedTime += .5;
 		}
 	}
 }
