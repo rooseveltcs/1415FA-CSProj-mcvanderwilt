@@ -40,7 +40,6 @@ public class Level {
 	private static final int PANEL_HEIGHT = ARR_HEIGHT * PXLS_PER_TILE;
 	
 	private int deltaX;//The TOP-LEFT CORNER of the Array and of the background image; changes with player key input
-	private int deltaY;
 	private int startArr;//left-most column of arr. being drawn on screen
 	
 	//List of Active Sprites
@@ -82,7 +81,6 @@ public class Level {
 		}
 		
 		deltaX = 0;
-		deltaY = 0;
 		
 		layout = new int[ARR_WIDTH][ARR_HEIGHT];
 		txtToArray();
@@ -174,12 +172,18 @@ public class Level {
 	private class Controller implements KeyListener {
 		
 		//TODO: not sure that motion should be uniform
-		private static final int MOVE_STEP = 10;//movement per step (push of arrow)
+		private static final int MOVE_STEP = 6;//movement per step (push of arrow)
 		
 		private boolean leftKeyPressed;
 		private boolean rightKeyPressed;
 		private boolean upKeyPressed;
 		private boolean downKeyPressed;
+		
+		private boolean collide;
+		
+		private Controller(){
+			collide = false;
+		}
 		
 		@Override
 		public void keyPressed(KeyEvent ev) {
@@ -191,14 +195,13 @@ public class Level {
 				if (deltaX > 0){//LEFT-HAND boundary for scrolling
 					deltaX -= MOVE_STEP;
 				}
-			} else if (keyCode == KeyEvent.VK_RIGHT){
+			} else if (keyCode == KeyEvent.VK_RIGHT && !collide){
 				rightKeyPressed = true;
 				if (deltaX < (ARR_WIDTH) * PXLS_PER_TILE - PANEL_WIDTH){//RIGHT-HAND boundary for scrolling
 					deltaX += MOVE_STEP;
 				}
 			} else if (keyCode == KeyEvent.VK_UP){
 				upKeyPressed = true;
-				deltaY += MOVE_STEP;
 			} else if (keyCode == KeyEvent.VK_DOWN){
 				//set to state "kneel" if on a block 
 			}
@@ -236,33 +239,50 @@ public class Level {
 					//set Mario's state to jumping
 					//s.falling(true);//TODO: Not sure where to derive time from
 				}
-				s.update(deltaX, deltaY);
+				
 				
 				//collision detection
-				Rectangle spriteBox = s.getBoundingBox();
 				//use intersection method to test collision from all sides 
-				
 				
 				//get corresponding array location
 				int marArrXPos = Mario.xPos / 32;
 					//Mario.xPos = 64 currently
-				System.out.println(startArr);
-//start Arr is slightly off ~10 pxls				
+				//System.out.println(startArr);
 				int tileType = layout[startArr + marArrXPos][s.yPos/32];
 				//to be used in collision detection (accurately evaluates which tiles Mario intersects)
 				//TODO: needs to check all 4
-				System.out.println((startArr + marArrXPos) + " " + (s.yPos/32) + " " + tileType);
+				//System.out.println((startArr + marArrXPos) + " " + (s.yPos/32) + " " + tileType);
 				
 				//COLLISION:
-				int x1 = s.xPos;
-				int x2 = x1 + s.width;
-				int y1 = s.yPos;
-				int y2 = y1 + s.height;
+				int x1 = startArr + (s.xPos / 32);
+				int x2 = startArr + (s.xPos + s.width) / 32;
+				int y1 = s.yPos / 32;
+				int y2 = (s.yPos + s.height) / 32;
 				
+				int leftTopTile = layout[x1][y1];
+				int rightTopTile = layout[x2][y1];
+				int leftBottomTile = layout[x1][y2];
+				int rightBottomTile = layout[x2][y2];
 				
+				//CHECK ONLY IF SPRITE IS MOVING RIGHT
+				if (leftTopTile != 0){
+					collide = true;
+					//System.out.println("leftTopTile");
+				} else if (rightTopTile != 0) {
+					collide = true;
+					//System.out.println("rightTopTile");
+				} else if (leftBottomTile != 0) {
+					collide = true;
+					//System.out.println("leftBottomTile");
+				} else if (rightBottomTile != 0){
+					collide = true;
+					//System.out.println("rightBottomTile");
+				}
 				
-				int tlType = layout[x1/32][y1/32];
-				//System.out.println("Top corner: " + tlType);
+				if (!collide){
+					s.update(deltaX);//, deltaY);
+				}
+				
 			}
 		}			
 		
@@ -313,9 +333,10 @@ public class Level {
 				//draw columns only from ___ to ____ + TILES_WIDE
 				
 				if (deltaX < 32 * (ARR_WIDTH - TILES_WIDE)){
-					startArr = deltaX / 32;//left-most column drawn on screen
+					//TODO: "+ 6" below gets rid of the offset for collision detection (ideally, shouldn't be needed)
+					startArr = (deltaX + 6) / 32;//left-most column drawn on screen
 				}
-				for (int column = startArr; column <= startArr + TILES_WIDE; column++) {//TODO: THROWS INdex out of bounds exception when reaches final panel
+				for (int column = startArr; column < startArr + TILES_WIDE; column++) {//TODO: THROWS INdex out of bounds exception when reaches final panel
 					drawXPos = column * PXLS_PER_TILE - deltaX;
 					drawYPos = row * PXLS_PER_TILE;
 					

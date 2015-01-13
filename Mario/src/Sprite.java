@@ -29,7 +29,7 @@ public abstract class Sprite {
 		return new Rectangle (xPos, yPos, width, height);
 	}
 	
-	abstract void update(int delta, int vertDelta);
+	abstract void update(int delta);//, int vertDelta);
 	
 	public BufferedImage sizeImage(Image spriteImg, int width, int height){
 		BufferedImage resizedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -60,10 +60,10 @@ public abstract class Sprite {
 	
 	public void falling(boolean inAir){
 		float elapsedTime = 0;
+		double dt = 0.01;
 		while (inAir){
-			yPos += yVelocity * elapsedTime;
-			yVelocity += ACCofGRAVITY * elapsedTime;
-			elapsedTime += .5;
+			yPos += yVelocity * dt;
+			yVelocity += ACCofGRAVITY * dt;
 		}
 	}
 }
