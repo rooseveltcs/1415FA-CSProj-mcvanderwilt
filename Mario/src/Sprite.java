@@ -18,8 +18,9 @@ public abstract class Sprite {
 	public int height;
 	
 	public boolean facingLeft;
+	//public boolean inAir;
 	
-	public static final double ACCofGRAVITY = -9.8;
+	public static final double ACCofGRAVITY = -.1;
 	
 	public ArrayList<State> states;
 	public State currentState;
@@ -47,6 +48,7 @@ public abstract class Sprite {
 	}
 	
 	public void display(Graphics g){
+		
 		for (BufferedImage i : currentState.images){
 			if (!facingLeft) {
 				g.drawImage(i, xPos + width, yPos, -width, height, null);
@@ -65,5 +67,6 @@ public abstract class Sprite {
 			yPos += yVelocity * dt;
 			yVelocity += ACCofGRAVITY * dt;
 		}
+		//this.inAir = inAir;
 	}
 }

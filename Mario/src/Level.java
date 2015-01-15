@@ -257,7 +257,7 @@ public class Level {
 				int x1 = startArr + (s.xPos / 32);
 				int x2 = startArr + (s.xPos + s.width) / 32;
 				int y1 = s.yPos / 32;
-				int y2 = (s.yPos + s.height) / 32;
+				int y2 = (s.yPos + s.height - 1) / 32;//-1 needed to ensure that Mario doesn't stop in advance of tile
 				
 				int leftTopTile = layout[x1][y1];
 				int rightTopTile = layout[x2][y1];
@@ -269,6 +269,10 @@ public class Level {
 					collide = true;
 					//System.out.println("leftTopTile");
 				} else if (rightTopTile != 0) {
+					if (rightTopTile == 2){
+						//add points 
+						layout[x2][y1] = 0;
+					}
 					collide = true;
 					//System.out.println("rightTopTile");
 				} else if (leftBottomTile != 0) {
@@ -284,7 +288,7 @@ public class Level {
 				}
 				
 			}
-		}			
+		}
 		
 		@Override
 		public void keyTyped(KeyEvent ev) {
