@@ -18,7 +18,7 @@ public abstract class Sprite {
 	public int height;
 	
 	public boolean facingLeft;
-	//public boolean inAir;
+	public boolean inAir;
 	
 	public static final double ACCofGRAVITY = -.1;
 	
@@ -50,7 +50,8 @@ public abstract class Sprite {
 	public void display(Graphics g){
 		
 		for (BufferedImage i : currentState.images){
-			if (!facingLeft) {
+			if (facingLeft) {
+				//Not certain how to ensure uniformity (ie. making sure initial image faces left)
 				g.drawImage(i, xPos + width, yPos, -width, height, null);
 			} else {
 				g.drawImage(i, xPos, yPos, null);//-width keeps top left corner in same place
@@ -60,13 +61,13 @@ public abstract class Sprite {
 		}
 	}
 	
-	public void falling(boolean inAir){
+	public void falling(){
 		float elapsedTime = 0;
 		double dt = 0.01;
-		while (inAir){
-			yPos += yVelocity * dt;
+		if (inAir){
 			yVelocity += ACCofGRAVITY * dt;
+		} else {
+			yVelocity = 0;
 		}
-		//this.inAir = inAir;
 	}
 }

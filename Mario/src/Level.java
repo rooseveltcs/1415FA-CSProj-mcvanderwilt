@@ -41,6 +41,7 @@ public class Level {
 	
 	private int deltaX;//The TOP-LEFT CORNER of the Array and of the background image; changes with player key input
 	private int startArr;//left-most column of arr. being drawn on screen
+	private int coinCount;
 	
 	//List of Active Sprites
 	//Based on text file with all sprite names, types, positions 
@@ -128,7 +129,8 @@ public class Level {
 	}
 	
 	//UPDATE LEVEL: shift background according to Mario's xPos/direction
-	public void updateX() {
+	public void update() {
+		//CALL CONTROLLER UPDATE
 	}
 	
 	//UPDATE SPRITES: shift position according to Mario's movement; test for collision detections
@@ -180,6 +182,7 @@ public class Level {
 		private boolean downKeyPressed;
 		
 		private boolean collide;
+		private boolean collideBottom;
 		
 		private Controller(){
 			collide = false;
@@ -264,7 +267,9 @@ public class Level {
 				int leftBottomTile = layout[x1][y2];
 				int rightBottomTile = layout[x2][y2];
 				
-				//CHECK ONLY IF SPRITE IS MOVING RIGHT
+				//Check collision w/brick in direction sprite is moving (right/left)
+				//Check if falling (if tile underneath)
+				//Check above if jumping
 				if (leftTopTile != 0){
 					collide = true;
 					//System.out.println("leftTopTile");
@@ -272,21 +277,30 @@ public class Level {
 					if (rightTopTile == 2){
 						//add points 
 						layout[x2][y1] = 0;
+						System.out.println("Coin count + 1");
 					}
 					collide = true;
 					//System.out.println("rightTopTile");
 				} else if (leftBottomTile != 0) {
-					collide = true;
+					collideBottom = true;
 					//System.out.println("leftBottomTile");
 				} else if (rightBottomTile != 0){
-					collide = true;
+					collideBottom = true;
 					//System.out.println("rightBottomTile");
+				} else {
+					collide = false;
+					collideBottom = false;
 				}
 				
 				if (!collide){
 					s.update(deltaX);//, deltaY);
 				}
-				
+				if (collideBottom){
+					s.inAir = false;
+				} else {
+					s.inAir = true;
+				}
+				s.falling();
 			}
 		}
 		

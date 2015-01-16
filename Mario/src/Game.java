@@ -29,7 +29,8 @@ public class Game {
 			
 			loops = 0;
 			while (System.currentTimeMillis() > next_game_tick && loops < MAX_FRAMESKIP){
-				level.updateX();//not the one contained in controller class
+				level.update();//not the one contained in controller class
+				level.updateSprites();
 				
 				next_game_tick += SKIP_TICKS;
 				loops++;
