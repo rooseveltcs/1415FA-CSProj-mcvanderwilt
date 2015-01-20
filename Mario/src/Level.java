@@ -43,6 +43,11 @@ public class Level {
 	private int startArr;//left-most column of arr. being drawn on screen
 	private int coinCount;
 	
+	
+	//
+	public int imgIndicator;//which image is being displayed in animated sprites	
+	//
+	
 	//List of Active Sprites
 	//Based on text file with all sprite names, types, positions 
 	private ArrayList<Sprite> spriteList;
@@ -124,7 +129,6 @@ public class Level {
 		if (numMarios != 1) {
 			System.out.println("Error inadequate number of Marios in Sprite file");//SET ERROR?
 		}
-		System.out.println(spriteList.toString());
 		return spriteList;
 	}
 	
@@ -134,7 +138,7 @@ public class Level {
 	}
 	
 	//UPDATE SPRITES: shift position according to Mario's movement; test for collision detections
-	public void updateSpritesX(){
+	public void updateSprites(){
 	//test collision	
 		for (Sprite s : spriteList) {
 			Rectangle spriteBox = s.getBoundingBox();
@@ -166,7 +170,7 @@ public class Level {
 		//for each sprite in array
 			//Draw each sprite
 		for (Sprite s : spriteList){
-			s.display(g);
+			s.display(g, imgIndicator);
 		}
 	}
 	
@@ -233,6 +237,7 @@ public class Level {
 		}
 		
 		public void updateSprites(){
+			imgIndicator++;
 			for (Sprite s : spriteList){
 				if (leftKeyPressed){
 					s.leftPressed(true);
@@ -262,10 +267,20 @@ public class Level {
 				int y1 = s.yPos / 32;
 				int y2 = (s.yPos + s.height - 1) / 32;//-1 needed to ensure that Mario doesn't stop in advance of tile
 				
+				ArrayList<Int> tilesContMario = new ArrayList<Int>();			
 				int leftTopTile = layout[x1][y1];
+				tilesContMario.add(leftTopTile);
+				
 				int rightTopTile = layout[x2][y1];
+				tilesContMario.add(rightTopTile);
+				
 				int leftBottomTile = layout[x1][y2];
+				tilesContMario.add(leftBottomTile);
+				
 				int rightBottomTile = layout[x2][y2];
+				tilesContMario.add(rightBottomTile);
+				
+				//if (tilesContMario.contains)
 				
 				//Check collision w/brick in direction sprite is moving (right/left)
 				//Check if falling (if tile underneath)
@@ -277,7 +292,7 @@ public class Level {
 					if (rightTopTile == 2){
 						//add points 
 						layout[x2][y1] = 0;
-						System.out.println("Coin count + 1");
+						coinCount++;
 					}
 					collide = true;
 					//System.out.println("rightTopTile");
@@ -363,38 +378,14 @@ public class Level {
 					g.setColor(Color.WHITE);
 					g.drawRect(drawXPos, drawYPos, PXLS_PER_TILE, PXLS_PER_TILE);//WHite grid for implementing collision detection
 				}
-				/*
-				for (int column = 0; column < ARR_WIDTH; column++){
-					
-					drawXPos = column * PXLS_PER_TILE - deltaX;
-					drawYPos = row * PXLS_PER_TILE;
-					
-					int tileType = layout[column][row];
-					if (drawXPos < PANEL_WIDTH + PXLS_PER_TILE && drawXPos >= -PXLS_PER_TILE){//Prevents off-panel stuff from being drawn 
-						g.drawImage(tiles[tileType], drawXPos, drawYPos, panel);
-					}
-				} */
 			}
 			try {
 				drawSprites(g);
 			} catch (IOException e) {
 				System.out.println("Error drawing sprites.");
 			}
+			
+			g.drawString("" + coinCount, 20,20 );
 		}
 	}
 }
-//need to implement a game loop that repaints the level every _ milliseconds 
-	//figure out placement
-	//figure out contents (method calls)
-/*
-double lastTime = getCurrentTime();
-while (true)
-{
-  double current = getCurrentTime();
-  double elapsed = current - lastTime;
-  processInput();
-  update(elapsed);
-  render();
-  lastTime = current;
-}
-*/

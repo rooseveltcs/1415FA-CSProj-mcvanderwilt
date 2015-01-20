@@ -25,7 +25,7 @@ public abstract class Sprite {
 	public ArrayList<State> states;
 	public State currentState;
 	
-	
+
 	public Rectangle getBoundingBox(){
 		return new Rectangle (xPos, yPos, width, height);
 	}
@@ -47,18 +47,21 @@ public abstract class Sprite {
 	public void leftPressed(boolean left){
 	}
 	
-	public void display(Graphics g){
-		
-		for (BufferedImage i : currentState.images){
+	//Img indicator will change in Level's update method. Should loop through images
+	public void display(Graphics g, int imgInd){
+		//TODO: Stacks images on top of one another, doesn't loop.
+		//for (BufferedImage i : currentState.images){
+		imgInd = imgInd % currentState.images.size();
+		BufferedImage i = currentState.images.get(imgInd);
 			if (facingLeft) {
 				//Not certain how to ensure uniformity (ie. making sure initial image faces left)
-				g.drawImage(i, xPos + width, yPos, -width, height, null);
+				g.drawImage(i, xPos + width, yPos, -i.getWidth(), i.getHeight(), null);
 			} else {
 				g.drawImage(i, xPos, yPos, null);//-width keeps top left corner in same place
 			}
 			g.drawRect(xPos, yPos, width, height);//shows bounding box
 			g.fillOval(xPos - 5, yPos - 5, 10, 10);
-		}
+		//}
 	}
 	
 	public void falling(){
