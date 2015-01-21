@@ -185,11 +185,16 @@ public class Level {
 		private boolean upKeyPressed;
 		private boolean downKeyPressed;
 		
-		private boolean collide;
+		private boolean collideLeft;
+		private boolean collideRight;
 		private boolean collideBottom;
+		private boolean collideTop;
 		
 		private Controller(){
-			collide = false;
+			collideLeft = false;
+			collideRight = false;
+			collideTop = false;
+			collideBottom = false;//TODO: Need to initialize here??
 		}
 		
 		@Override
@@ -202,7 +207,7 @@ public class Level {
 				if (deltaX > 0){//LEFT-HAND boundary for scrolling
 					deltaX -= MOVE_STEP;
 				}
-			} else if (keyCode == KeyEvent.VK_RIGHT && !collide){
+			} else if (keyCode == KeyEvent.VK_RIGHT && !collideRight){
 				rightKeyPressed = true;
 				if (deltaX < (ARR_WIDTH) * PXLS_PER_TILE - PANEL_WIDTH){//RIGHT-HAND boundary for scrolling
 					deltaX += MOVE_STEP;
@@ -245,7 +250,6 @@ public class Level {
 					s.leftPressed(false);
 				} else if (upKeyPressed) {
 					//set Mario's state to jumping
-					//s.falling(true);//TODO: Not sure where to derive time from
 				}
 				
 				
@@ -258,8 +262,6 @@ public class Level {
 				//System.out.println(startArr);
 				int tileType = layout[startArr + marArrXPos][s.yPos/32];
 				//to be used in collision detection (accurately evaluates which tiles Mario intersects)
-				//TODO: needs to check all 4
-				//System.out.println((startArr + marArrXPos) + " " + (s.yPos/32) + " " + tileType);
 				
 				//COLLISION:
 				int x1 = startArr + (s.xPos / 32);
@@ -267,26 +269,16 @@ public class Level {
 				int y1 = s.yPos / 32;
 				int y2 = (s.yPos + s.height - 1) / 32;//-1 needed to ensure that Mario doesn't stop in advance of tile
 				
-				ArrayList<Int> tilesContMario = new ArrayList<Int>();			
 				int leftTopTile = layout[x1][y1];
-				tilesContMario.add(leftTopTile);
-				
 				int rightTopTile = layout[x2][y1];
-				tilesContMario.add(rightTopTile);
-				
 				int leftBottomTile = layout[x1][y2];
-				tilesContMario.add(leftBottomTile);
-				
 				int rightBottomTile = layout[x2][y2];
-				tilesContMario.add(rightBottomTile);
-				
-				//if (tilesContMario.contains)
 				
 				//Check collision w/brick in direction sprite is moving (right/left)
 				//Check if falling (if tile underneath)
 				//Check above if jumping
 				if (leftTopTile != 0){
-					collide = true;
+					collideLeft = true;
 					//System.out.println("leftTopTile");
 				} else if (rightTopTile != 0) {
 					if (rightTopTile == 2){
@@ -294,7 +286,7 @@ public class Level {
 						layout[x2][y1] = 0;
 						coinCount++;
 					}
-					collide = true;
+					collideRight = true;
 					//System.out.println("rightTopTile");
 				} else if (leftBottomTile != 0) {
 					collideBottom = true;
@@ -303,17 +295,21 @@ public class Level {
 					collideBottom = true;
 					//System.out.println("rightBottomTile");
 				} else {
-					collide = false;
+					collideRight = false;
+					collideLeft = false;
+					collideTop = false;
 					collideBottom = false;
 				}
 				
-				if (!collide){
+				if (!collideRight && !collideLeft){
 					s.update(deltaX);//, deltaY);
 				}
 				if (collideBottom){
 					s.inAir = false;
 				} else {
 					s.inAir = true;
+					//System.out.println("falling - yVelocity: " + s.yVelocity 
+						//	+ ", yPos: " + s.yPos);
 				}
 				s.falling();
 			}
@@ -342,7 +338,7 @@ public class Level {
 			graphics.dispose();
 		}
 		
-		//TODO: SCROLLING IS NOW FULLY FUNCTIONAL (though left-hand boundary begins at 0)
+		//TODO: SCROLLING IS NOW FULLY FUNCTIONAL (though left-hand boundary begins at 0), slight lag at end of screen
 		@Override
 		public void paintComponent(Graphics g){
 			super.paintComponent(g);

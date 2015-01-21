@@ -20,7 +20,7 @@ public abstract class Sprite {
 	public boolean facingLeft;
 	public boolean inAir;
 	
-	public static final double ACCofGRAVITY = -.1;
+	public static final double ACCofGRAVITY = 9.8;
 	
 	public ArrayList<State> states;
 	public State currentState;
@@ -65,12 +65,16 @@ public abstract class Sprite {
 	}
 	
 	public void falling(){
-		float elapsedTime = 0;
-		double dt = 0.01;
+		//float elapsedTime = 0;
+		double dt = 0.1;
 		if (inAir){
 			yVelocity += ACCofGRAVITY * dt;
 		} else {
 			yVelocity = 0;
 		}
+	}
+	
+	public void setYVelocity(int yVel){
+		yVelocity = yVel;
 	}
 }
