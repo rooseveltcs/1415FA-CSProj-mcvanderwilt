@@ -15,6 +15,12 @@ import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+//Problems:
+	//collision detection on bottom is insignificant (off by a significant factor)
+	//left and right are significantly off
+	//gravity only activated when a key is pressed
+
+
 public class Level {
 	
 	private File txtFile;
@@ -140,11 +146,10 @@ public class Level {
 	//UPDATE SPRITES: shift position according to Mario's movement; test for collision detections
 	public void updateSprites(){
 	//test collision	
-		for (Sprite s : spriteList) {
-			Rectangle spriteBox = s.getBoundingBox();
+		//for (Sprite s : spriteList) {
 			//get corresponding array location
 			//System.out.println(layout[deltaX / 32][deltaY/32]);
-		}
+		//}
 		//get Sprite's location/bounding box
 		//Make sure sprite is still on screen
 		//check array at that location:
@@ -202,7 +207,7 @@ public class Level {
 			//TODO: Account for multiple-keys pressed
 			int keyCode = ev.getKeyCode();
 			
-			if (keyCode == KeyEvent.VK_LEFT){
+			if (keyCode == KeyEvent.VK_LEFT && !collideLeft){
 				leftKeyPressed = true;
 				if (deltaX > 0){//LEFT-HAND boundary for scrolling
 					deltaX -= MOVE_STEP;
@@ -252,22 +257,19 @@ public class Level {
 					//set Mario's state to jumping
 				}
 				
-				
 				//collision detection
 				//use intersection method to test collision from all sides 
 				
 				//get corresponding array location
-				int marArrXPos = Mario.xPos / 32;
 					//Mario.xPos = 64 currently
-				//System.out.println(startArr);
-				int tileType = layout[startArr + marArrXPos][s.yPos/32];
+
 				//to be used in collision detection (accurately evaluates which tiles Mario intersects)
 				
 				//COLLISION:
 				int x1 = startArr + (s.xPos / 32);
 				int x2 = startArr + (s.xPos + s.width) / 32;
 				int y1 = s.yPos / 32;
-				int y2 = (s.yPos + s.height - 1) / 32;//-1 needed to ensure that Mario doesn't stop in advance of tile
+				int y2 = (s.yPos + s.height) / 32;
 				
 				int leftTopTile = layout[x1][y1];
 				int rightTopTile = layout[x2][y1];
@@ -285,15 +287,26 @@ public class Level {
 						//add points 
 						layout[x2][y1] = 0;
 						coinCount++;
+					} else {
+						collideRight = true;
+						System.out.println("rightTopTile");
 					}
-					collideRight = true;
-					//System.out.println("rightTopTile");
 				} else if (leftBottomTile != 0) {
-					collideBottom = true;
-					//System.out.println("leftBottomTile");
+					if (leftBottomTile == 2){
+						layout[x1][y2] = 0;
+						coinCount++;
+					} else {
+						collideBottom = true;
+						System.out.println("leftBottomTile");
+					}
 				} else if (rightBottomTile != 0){
-					collideBottom = true;
-					//System.out.println("rightBottomTile");
+					if (rightBottomTile == 2){
+						layout[x2][y2] = 0;
+						coinCount++;
+					} else {
+						collideBottom = true;
+						System.out.println("rightBottomTile");
+					}
 				} else {
 					collideRight = false;
 					collideLeft = false;
@@ -356,7 +369,6 @@ public class Level {
 			g.drawImage(resizedImage, breakPt, 0, breakPt + PANEL_WIDTH, PANEL_HEIGHT, 0, 0, imgWidth, imgHeight, panel);
 			
 			//BRICK LAYOUT
-
 			int drawXPos, drawYPos;//place where tile will be drawn on JPanel
 			for (int row = 0; row < ARR_HEIGHT; row++){//Stays unchanging
 				//draw columns only from ___ to ____ + TILES_WIDE
@@ -365,7 +377,7 @@ public class Level {
 					//TODO: "+ 6" below gets rid of the offset for collision detection (ideally, shouldn't be needed)
 					startArr = (deltaX + 6) / 32;//left-most column drawn on screen
 				}
-				for (int column = startArr; column < startArr + TILES_WIDE; column++) {//TODO: THROWS INdex out of bounds exception when reaches final panel
+				for (int column = startArr; column < startArr + TILES_WIDE; column++) {//TODO0: THROWS INdex out of bounds exception when reaches final panel
 					drawXPos = column * PXLS_PER_TILE - deltaX;
 					drawYPos = row * PXLS_PER_TILE;
 					
@@ -380,7 +392,6 @@ public class Level {
 			} catch (IOException e) {
 				System.out.println("Error drawing sprites.");
 			}
-			
 			g.drawString("" + coinCount, 20,20 );
 		}
 	}

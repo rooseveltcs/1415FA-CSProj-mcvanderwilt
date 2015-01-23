@@ -20,7 +20,7 @@ public abstract class Sprite {
 	public boolean facingLeft;
 	public boolean inAir;
 	
-	public static final double ACCofGRAVITY = 9.8;
+	public static final double ACCofGRAVITY = 4;
 	
 	public ArrayList<State> states;
 	public State currentState;
