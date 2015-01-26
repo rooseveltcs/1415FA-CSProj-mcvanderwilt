@@ -13,7 +13,12 @@ public class Game {
 		File imageFile = new File("Tiles.png");//row of tiles used in each level
 		File spriteFile = new File("SpriteFile.txt");
 		
-		Level level = new Level(file, imageFile, spriteFile);
+		Frame view = new Frame();//NEW
+		Level model = new Level(file, imageFile, spriteFile, view);//NEW
+		Controller controller = new Controller(model);//NEW
+		
+		//OLD SET-UP
+		//LevelX model = new LevelX(file, imageFile, spriteFile);
 		
 		//Game loop adapted from http://www.koonsolo.com/news/dewitters-gameloop/ 
 		
@@ -29,8 +34,8 @@ public class Game {
 			
 			loops = 0;
 			while (System.currentTimeMillis() > next_game_tick && loops < MAX_FRAMESKIP){
-				level.update();//not the one contained in controller class
-				level.updateSprites();
+				model.update();//not the one contained in controller class
+				model.updateSprites();
 				
 				next_game_tick += SKIP_TICKS;
 				loops++;
@@ -38,7 +43,7 @@ public class Game {
 			
 			interpolation = (float) (System.currentTimeMillis() + SKIP_TICKS - next_game_tick) / (float) (SKIP_TICKS);
 			//level.draw(interpolation);
-			level.draw();
+			model.draw();
 			//TODO: game still does not account for lag
 			//TODO: draw Level needs to account for interpolation (or game loop needs to modified/removed)
 		
