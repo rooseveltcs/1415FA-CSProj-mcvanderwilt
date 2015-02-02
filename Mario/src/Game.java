@@ -13,6 +13,10 @@ public class Game {
 		File imageFile = new File("Tiles.png");//row of tiles used in each level
 		File spriteFile = new File("SpriteFile.txt");
 		
+		/* Not sure if this set-up is actually what I want (it deviates slightly from the MVC model 
+		 * perhaps, to stay true to MVC I would give Controller access to View or vice versa
+		 * 
+		 */
 		Frame view = new Frame();//NEW
 		Level model = new Level(file, imageFile, spriteFile, view);//NEW
 		Controller controller = new Controller(model);//NEW

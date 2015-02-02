@@ -2,6 +2,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 import javax.imageio.ImageIO;
@@ -18,6 +19,7 @@ public class Level {
 	
 	public int[][] tileLayout;
 	public BufferedImage[] tiles;
+	public ArrayList<Sprite> spriteList;
 	
 	/* Constructor 
 	 * 
@@ -31,6 +33,7 @@ public class Level {
 	public Level(File f, File imgF, File spriteF, Frame view) throws FileNotFoundException {
 		tileLayout = txtToArray(f);
 		tiles = imgToTiles(imgF);
+		spriteList = txtToSprites(spriteF);
 	}
 	
 	private int[][] txtToArray(File txtFile) throws FileNotFoundException {
@@ -62,5 +65,21 @@ public class Level {
 		}
 		
 		return tiles;
+	}
+	
+	private ArrayList<Sprite> txtToSprites(File spriteF) throws FileNotFoundException {
+		
+		int numMarios = 0;//ensures that there is one (and only one mario created in the game)
+		
+		Scanner scanFile = new Scanner(spriteF);
+		while (scanFile.hasNextLine()){
+			//INTIALIZE SPRITES - not sure how I want to structure Sprite class
+				//Sprite should have type (ie Mario, enemy, etc)
+				//Sprite should have location (x, y) relative to screen (or to initial origin)
+				//Sprite should have manner of updating 
+				//Sprite should have various ways in which it interacts with other objects
+		}
+		
+		return spriteList;
 	}
 }
